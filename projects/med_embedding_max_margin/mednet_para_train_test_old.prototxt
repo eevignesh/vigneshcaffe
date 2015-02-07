@@ -1,0 +1,251 @@
+name: "med_c5_euclid_d4096"
+layers {
+  name: "shot_windows"
+  type: VIDEO_SHOT_WINDOW_DATA
+  top: "data"
+  top: "video_id"
+  video_shot_window_data_param {
+    source: "/data2/vigneshr/ICCV2015/data/med_dev_event_kit_shot_c3_lmdb_revised"
+    backend: LMDB
+    batch_size: 32
+    num_negative_samples: 10
+    max_buffer_size: 2000
+    negative_swap_percentage: 0
+  }
+
+  include: { phase: TRAIN }
+}
+
+
+layers {
+  name: "video_id_embedding"
+  type: ID_TO_WEIGHT_MAPPING
+  bottom: "video_id"
+  top: "video_id_emb"
+  id_to_weight_mapping_param {
+    num_output: 4096
+    max_ids: 6000
+    weight_filler {
+      type: "xavier"
+#      type: "gaussian"
+#      mean: 0.0
+#      std: 0.1
+    }
+  }   
+}
+
+#layers {
+#  name: "drop1"
+#  type: DROPOUT
+#  bottom: "video_id_emb"
+#  top: "video_id_emb"
+#  dropout_param {
+#    dropout_ratio: 0.5
+#  }
+#}
+
+layers {
+  name: "slice_input_data"
+  type: SLICE
+  bottom: "data"
+  top: "target_datum"
+  top: "context_datum_1"
+  top: "context_datum_2"
+  top: "context_datum_3"
+  top: "context_datum_4"
+  top: "context_datum_5"
+  top: "context_datum_6"
+  top: "context_datum_7"
+  top: "context_datum_8"
+  top: "context_datum_9"
+  top: "context_datum_10"
+  top: "context_datum_11"
+  top: "context_datum_12"
+  slice_param {
+    slice_dim: 1  
+  }
+}
+
+layers {
+  name: "silence_concat_input"
+  type: CONCAT
+  bottom: "context_datum_3"
+  bottom: "context_datum_4"
+  bottom: "context_datum_5"
+  bottom: "context_datum_6"
+  bottom: "context_datum_7"
+  bottom: "context_datum_8"
+  bottom: "context_datum_9"
+  bottom: "context_datum_10"
+  bottom: "context_datum_11"
+  bottom: "context_datum_12"
+
+  top: "silence_input_datums"
+  concat_param {
+    concat_dim: 0  
+  }
+}
+
+layers {
+  name: "sum"
+  type: SUM
+  bottom: "silence_input_datums"
+  top: "silence_sum"
+
+  sum_param {
+    num_output: 2  
+  }
+}
+
+layers {
+  name: "silence"
+  type: SILENCE
+  bottom: "silence_sum"  
+}
+
+
+layers {
+  name: "batch_concat_input"
+  type: CONCAT
+  #bottom: "target_datum"
+  bottom: "context_datum_1"
+  bottom: "context_datum_2"
+  #bottom: "context_datum_3"
+  #bottom: "context_datum_4"
+  top: "concat_input_datums"
+  concat_param {
+    concat_dim: 0  
+  }
+}
+
+layers {
+  name: "word_embedding_0"
+  type: INNER_PRODUCT
+  bottom: "concat_input_datums"
+  top: "ip1"
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "xavier"
+#      type: "gaussian"
+#      mean: 0.0
+#      std: 0.1
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+layers {
+  name: "word_embedding"
+  type: INNER_PRODUCT
+  bottom: "ip1"
+  top: "ip2"
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "xavier"
+#      type: "gaussian"
+#      mean: 0.0
+#      std: 0.1
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+#layers {
+#  name: "drop2"
+#  type: DROPOUT
+#  bottom: "ip2"
+#  top: "ip2"
+#  dropout_param {
+#    dropout_ratio: 0.5
+#  }
+#}
+
+layers {
+  name: "slice_emb"
+  type: SLICE
+  bottom: "ip2"
+  #top: "target_emb"
+  top: "context_emb_1"
+  top: "context_emb_2"
+  #top: "context_emb_3"
+  #top: "context_emb_4"
+  slice_param {
+    slice_dim: 0
+  }
+}
+
+layers {
+  name: "concat_context_emb"
+  type: CONCAT
+  bottom: "context_emb_1"
+  bottom: "context_emb_2"
+  bottom: "video_id_emb"
+  top: "context_feature"
+  concat_param {
+    concat_dim: 1  
+  }
+}
+
+#layers {
+#  name: "avg_context_emb"
+#  type: ELTWISE
+#  bottom: "context_emb_1"
+#  bottom: "context_emb_2"
+#  #bottom: "context_emb_3"
+#  #bottom: "context_emb_4"
+#  bottom: "video_id_emb"
+#  top: "context_feature"
+#  eltwise_param {
+#    operation: SUM
+#    coeff: 0.333
+#    coeff: 0.333
+#    coeff: 0.333
+#    #coeff: 0.20
+#    #coeff: 0.20
+#  }
+#}
+
+layers {
+  name: "target_score_pred"
+  type: INNER_PRODUCT
+  bottom: "context_feature"
+  top: "target_score"
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 4097
+    weight_filler {
+      type: "xavier"
+#      mean: 0.0
+#      std: 0.1
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+layers {
+  name: "flatten"
+  type: FLATTEN
+  bottom: "target_datum"
+  top: "target_datum_flat"  
+}
+
+layers {
+  name: "euclid_loss"
+  type: EUCLIDEAN_LOSS
+  bottom: "target_score"
+  bottom: "target_datum_flat"
+  top: "loss_output"
+}

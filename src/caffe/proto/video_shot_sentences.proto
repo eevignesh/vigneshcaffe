@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+import "caffe.proto";
+
+package video_shot_sentences;
+
+message VideoShotWindow {
+  optional int32 video_id = 1; // Video id required for paragraph models
+  optional int32 shot_id = 2; // shot id of the word
+  optional string video_name = 3; // Name of the video file
+  optional caffe.Datum target_shot_word = 4; // The target shot which is to be predicted
+  repeated caffe.Datum context_shot_words = 5; // The shot words which are in the context
+}
+
+//message VideoShotWindow {
+//  optional int32 video_id = 1;
+//  //optional string video_name = 2;
+//  optional caffe.Datum target_shot_word = 4;
+//  repeated caffe.Datum context_shot_words = 5;
+//  optional string video_name = 2;
+//}

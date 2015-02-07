@@ -1,0 +1,36 @@
+name: "CaffeNet"
+layers {
+  name: "data"
+  type: DATA
+  top: "data"
+  data_param {
+    source: "/afs/cs.stanford.edu/u/vigneshr/scratch2/ICCV2015/data/med_dev_event_kit_shots_only_lmdb"
+    batch_size: 128
+    backend: LMDB
+  }
+}
+
+layers {
+  name: "word_embedding"
+  type: INNER_PRODUCT
+  bottom: "data"
+  top: "ip2"
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 64
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+layers {
+  name: "word_embedding_norm"
+  type: NORMALIZATION
+  bottom: "ip2"
+  top: "ip2_norm"
+}

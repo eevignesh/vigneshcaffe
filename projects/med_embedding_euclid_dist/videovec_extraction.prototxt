@@ -1,0 +1,47 @@
+name: "CaffeNet"
+
+layers {
+  name: "shot_windows"
+  type: VIDEO_SHOT_WINDOW_DATA
+  top: "video_id"
+  video_shot_window_data_param {
+    #source: "/afs/cs.stanford.edu/u/vigneshr/scratch2/ICCV2015/data/test_event_kit_video_ids.txt"
+    source: "/scail/scratch/u/vigneshr/ICCV2015/code/med_svm_models/embedded_video_ids.txt"
+    backend: VIDEO_ID_TEXT
+    batch_size: 128
+  }
+}
+
+#layers {
+#  name: "video_id_embedding_test"
+#  type: ID_TO_WEIGHT_MAPPING
+#  bottom: "video_id"
+#  top: "video_id_emb_test"
+#  blobs_lr: 1
+#  id_to_weight_mapping_param {
+#    num_output: 64
+#    max_ids: 700
+##max_ids: 5800
+#    weight_filler {
+#      type: "gaussian"
+#      std: 0.001
+#    }
+#  }   
+#}
+
+layers {
+  name: "video_id_embedding"
+  type: ID_TO_WEIGHT_MAPPING
+  bottom: "video_id"
+  top: "video_id_emb_test"
+  blobs_lr: 1
+  id_to_weight_mapping_param {
+    num_output: 64
+    max_ids: 6000
+#max_ids: 5800
+    weight_filler {
+      type: "gaussian"
+      std: 0.001
+    }
+  }   
+}
