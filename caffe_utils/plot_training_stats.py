@@ -7,9 +7,10 @@ import sys
 
 FLAGS = gflags.FLAGS
 
-gflags.DEFINE_string('train_log_file', '/data2/vigneshr/vigneshcaffe/projects/med_embedding_with_dropout/train_mednet_dropout_6_512_relu_log_dir/caffe.INFO', 'the training log file')
-gflags.DEFINE_string('output_plot_dir', '/afs/cs.stanford.edu/u/vigneshr/www/misc/mednet_dropout_6_512_relu/', 'output plot file to which all the plots will be saved')
-gflags.DEFINE_string('stats_key_words', 'Train net output #0: loss_output,Test net output #0: loss_output,Test net output #1: test_violations',  #'Train net output #0: loss,Test net output #10: average_accuracy, lr',
+gflags.DEFINE_string('train_log_file', '/data2/vigneshr/vigneshcaffe/projects/med_embedding_with_exemplars_full/train_mednet_relu_11_4096_ret_log_dir/caffe.bin.INFO', 'the training log file')
+gflags.DEFINE_string('output_plot_dir', '/afs/cs.stanford.edu/u/vigneshr/www/misc/mednet_with_exemplars_full/', 'output plot file to which all the plots will be saved')
+gflags.DEFINE_integer('test_interval', 50, 'test is run per these many training iterations')
+gflags.DEFINE_string('stats_key_words', 'Train net output #0: loss_output,Test net output #0: loss_output,Test net output #2: test_map',#,Test net output #0: test_hit_at_1,Test net output #0: loss_output_svm',  #'Train net output #0: loss,Test net output #10: average_accuracy, lr',
   'comma separted list of keywords which corresponds to stats.'
   'For example if you want to read a line:'
   'Test net output #16: average_precision_per_class = 0.972'
@@ -78,12 +79,14 @@ def main(argv):
   for key in plot_values:
     idx += 1;
     fid = open('%s/data_%03d.txt'%(FLAGS.output_plot_dir, idx), 'w')
-    fid.write('# ---------------> %d:%s <---------------- '%(idx, key))
+    fid.write('# ---------------> %d:%s <----------------\n'%(idx, key))
+    val_ctr = 0
     for value in plot_values[key]:
       if (len(value) == 3):
         fid.write('%d, %f\n'%(value[1], value[2]))
       else:
-        fid.write('%f\n'%(value[1]))
+        fid.write('%d, %f\n'%(val_ctr*FLAGS.test_interval, value[1]))
+        val_ctr = val_ctr + 1
     fid.close()
     #print(plot_values[key])
     if len(plot_values[key])>0:
@@ -100,8 +103,9 @@ def main(argv):
       else:
         ax = fig.add_subplot(1,1,1)
         values = [p[1] for p in plot_values[key]]
-        ax.plot(dtimes, values)
+        ax.plot([r*FLAGS.test_interval for r in range(len(values))], values)
         plt.title(key)
+      plt.grid(True)
       fig.savefig('%s/plot_%03d.png'%(FLAGS.output_plot_dir, idx))
       plt.close()
 

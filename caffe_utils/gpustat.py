@@ -1,6 +1,6 @@
 import os
 
-tmpfile = '/data2/serena/tmp.txt'
+tmpfile = '/data2/vigneshr/tmp.txt'
 os.system('nvidia-smi > ' + tmpfile)
 lines = open(tmpfile, 'r').read().splitlines()
 
