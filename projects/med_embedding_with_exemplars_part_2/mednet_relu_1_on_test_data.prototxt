@@ -1,0 +1,148 @@
+name: "med_test_relu_1"
+
+layers {
+  name: "shot_windows"
+  type: VIDEO_SHOT_WINDOW_DATA
+  top: "data"
+  top: "video_ids"
+  video_shot_window_data_param {
+    #source: "/data2/vigneshr/ICCV2015/data/med_only_dev_shot_c3_lmdb_fc6"
+    #source: "/data2/vigneshr/ICCV2015/data/med_only_new_test_shot_c3_lmdb_fc6"
+    #source: "/data2/vigneshr/ICCV2015/data/med_only_new_test_shot_c3_lmdb_fc6_validation"
+    #source: "/data2/vigneshr/ICCV2015/data/med_event_kit_test_shot_c3_lmdb_revised_fc6"
+    #source: "/data2/vigneshr/ICCV2015/data/med_full_event_kit_shot_c3_lmdb_fc6"
+    
+    source: "/data2/vigneshr/ICCV2015/data/med_event_kit_test_with_distractors_shot_c3_lmdb_revised_fc6/"
+    backend: LMDB
+
+    #batch_size: 8430
+    #batch_size: 16226
+    #batch_size: 1587
+    #batch_size: 9024
+    #batch_size: 28375
+    batch_size: 38704
+
+# Negative buffer parameter
+    num_negative_samples: 0
+    max_buffer_size: 0
+    negative_swap_percentage: 0
+# Display everything about the video verbosely    
+#    display_all_ids: true
+  }
+
+}
+
+layers {
+  name: "slice_input_data"
+  type: SLICE
+  bottom: "data"
+  top: "concat_input_datums"
+  top: "context_datum_1"
+  top: "context_datum_2"
+
+  slice_param {
+    slice_dim: 1  
+  }
+
+}
+
+layers {
+  name: "silence_context_1"
+  type: SILENCE
+  bottom: "context_datum_1"
+  
+}
+
+layers {
+  name: "silence_context_2"
+  type: SILENCE
+  bottom: "context_datum_2"
+  
+}
+
+layers {
+  name: "flatten_input"
+  type: FLATTEN
+  bottom: "concat_input_datums"
+  top: "concat_input_datums_flat"  
+}
+
+layers {
+  name: "slice_extra_bit"
+  type: SLICE
+  bottom: "concat_input_datums_flat"
+  top: "original_feature"
+  top: "dummy_feature"
+  slice_param {
+   slice_dim: 1
+   slice_point: 4096
+  }
+}
+
+layers {
+  name: "silence_dummy"
+  type: SILENCE
+  bottom: "dummy_feature"  
+}
+
+layers {
+  name: "fc7"
+  type: INNER_PRODUCT
+  bottom: "original_feature"
+  top: "ip1"
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+
+}
+
+layers {
+  name: "fc7_relu"
+  type: RELU
+  top: "ip2_nonorm"
+  bottom: "ip1"  
+}
+
+layers {
+  name: "word_embedding_norm"
+  type: NORMALIZATION
+  bottom: "ip2_nonorm"
+  top: "ip2"
+}
+
+layers {
+  name: "retrieval_stats"
+  type: RETRIEVAL_STATS
+  bottom: "ip2"
+  bottom: "video_ids"
+  top: "test_map"
+  top: "test_hit_at_1"
+  top: "test_hit_at_5"
+
+  retrieval_stats_param {
+    #id_to_class_file: "/data2/vigneshr/ICCV2015/data/test_event_kit_id_to_class.txt"  
+    #id_to_class_file: "/data2/vigneshr/ICCV2015/data/embedded_video_list_labels.txt"
+    #id_to_class_file: "/data2/vigneshr/ICCV2015/data/full_event_kit_id_to_class.txt"
+    id_to_class_file: "/scail/scratch/u/vigneshr/ICCV2015/code/med_svm_models/test_event_kit_with_med10_distractors_id_to_class.txt"
+
+    #stats_output_file: "/data2/vigneshr/ICCV2015/data/mednet_pair_relu_1_results_test_12k.txt"
+    stats_output_file: "/data2/vigneshr/ICCV2015/data/mednet_pair_relu_1_results_test_event_distractor_12k.txt"
+    exclude_same_video_shots: true
+
+    #max_num_videos: 2028
+    #max_num_videos: 650
+    #max_num_videos: 1216
+    
+    #max_num_videos: 4117
+    #video_level_retrieval: true
+  }
+}

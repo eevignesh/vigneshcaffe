@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "boost/unordered_map.hpp"
 
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
@@ -14,6 +15,84 @@
 namespace caffe {
 
 const float kLOG_THRESHOLD = 1e-20;
+
+/**
+ * @brief Computes the retrieval stats for the given batch:
+ * 1. mean ap within the batch
+ * 2. hit@1
+ * 3. hit@5
+ */
+template <typename Dtype>
+class RetrievalStatsLayer : public Layer<Dtype> {
+ public:
+
+  explicit RetrievalStatsLayer(const LayerParameter& param)
+      : Layer<Dtype>(param) {}
+  virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+  virtual inline LayerParameter_LayerType type() const {
+    return LayerParameter_LayerType_RETRIEVAL_STATS;
+  }
+
+  virtual inline int ExactNumBottomBlobs() const { return 2; }
+  virtual inline int ExactNumTopBlobs() const { return 3; }
+
+ protected:
+  /**
+   * @param bottom input Blob vector (length 2)
+   *   -# @f$ (N \times C \times H \times W) @f$
+   *      the embedded vectors @f$ N @f$
+   *   -# @f$ (N \times 1 \times 1 \times 1) @f$
+   *      the video-ids @f$ N @f$, an integer-valued Blob with values
+   *      @f$ l_n \in @f$ set of video-ids
+   *      indicating the correct class label among the @f$ K @f$ classes
+   * @param top output Blob vector (length 3), add more if needed
+   * for now we have only the following:
+   *   -# @f$ (1 \times 1 \times 1 \times 1) @f$
+   *      the computed mean-ap
+   *   -# @f$ (1 \times 1 \times 1 \times 1) @f$
+   *      the computed hit@1
+   *   -# @f$ (1 \times 1 \times 1 \times 1) @f$
+   *      the computed hit@5
+   */
+  virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+
+  /// @brief Not implemented -- ClassificationStatsLayer cannot be used as a loss.
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom) {
+    for (int i = 0; i < propagate_down.size(); ++i) {
+      if (propagate_down[i]) { NOT_IMPLEMENTED; }
+    }
+  }
+  
+  void ComputeStats(const Dtype* video_ids, const vector<int>& sort_ids, double& ap, double& acc_1,
+    double& acc_5, const int current_video_id);
+
+  boost::unordered_map<int, int> video_id_to_class_;
+  int batch_size_;
+  int feature_dimension_;
+  string stats_output_file_;
+  bool exclude_same_video_shots_;
+
+  int max_num_videos_;
+
+  Blob<Dtype> distance_matrix_;
+  Blob<Dtype> norm_matrix_;
+  Blob<Dtype> temp_matrix_;
+  Blob<Dtype> temp_matrix_2_;
+  Blob<Dtype> temp_video_ids_;
+  //Blob<Dtype> sum_multiplier_f_;
+  Blob<Dtype> sum_multiplier_n_;
+  //vector<Dtype> temp_video_ids_;
+
+};
+
+
 
 /**
  * @brief Computes the classification stats: 1. accuracy
@@ -867,12 +946,15 @@ class MaxMarginLossLayer : public LossLayer<Dtype> {
     return LayerParameter_LayerType_MAX_MARGIN_LOSS;
   }
 
+  virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       vector<Blob<Dtype>*>* top);
 
-  virtual inline int ExactNumBottomBlobs() const { return 2; }
+  virtual inline int ExactNumBottomBlobs() const { return -1; }
   virtual inline int MinBottomBlobs() const { return 2; }
-  virtual inline int MaxBottomBlobs() const { return 2; }
+  virtual inline int MaxBottomBlobs() const { return 3; }
   virtual inline int ExactNumTopBlobs() const { return -1; }
   virtual inline int MinTopBlobs() const { return 1; }
   virtual inline int MaxTopBlobs() const { return 2; }
@@ -892,6 +974,11 @@ class MaxMarginLossLayer : public LossLayer<Dtype> {
    */
   virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom);
+
+  boost::unordered_map<int, float> video_id_to_weight_;
+
+  bool use_direct_weight_;
+
 };
 
 

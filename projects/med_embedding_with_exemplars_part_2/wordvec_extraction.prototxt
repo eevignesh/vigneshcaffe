@@ -1,0 +1,120 @@
+name: "CaffeNet"
+layers {
+  name: "shot_windows"
+  type: VIDEO_SHOT_WINDOW_DATA
+  top: "data"
+  top: "video_id"
+  video_shot_window_data_param {
+    #source: "/afs/cs.stanford.edu/u/vigneshr/scratch/ICCV2015/data/med_event_kit_test_shot_c3_lmdb_revised_fc6/"
+    #source: "/data2/vigneshr/ICCV2015/data/med_dev_event_kit_shot_c3_lmdb_revised"
+    source: "/afs/cs.stanford.edu/u/vigneshr/scratch/ICCV2015/data/med_event_kit_only_train_shot_c3_lmdb_revised_fc6/"
+    backend: LMDB
+    #batch_size: 222 # use 257 total batches for dev+train
+    batch_size: 507 # use 38 total batches for only train
+    #batch_size: 141 # use 64 total batches for test
+    num_negative_samples: 0
+    max_buffer_size: 0
+    negative_swap_percentage: 0
+  }
+}
+
+layers {
+  type: SILENCE
+  bottom: "video_id"
+}
+
+layers {
+  name: "slice_input_data"
+  type: SLICE
+  bottom: "data"
+  top: "target_datum"
+  top: "context_datum_1"
+  top: "context_datum_2"
+
+  slice_param {
+    slice_dim: 1  
+  }
+}
+
+layers {
+  type: SILENCE
+  bottom: "context_datum_1"
+}
+
+layers {
+  type: SILENCE
+  bottom: "context_datum_2"
+}
+
+layers {
+  name: "fc7_normalized"
+  type: NORMALIZATION
+  bottom: "target_datum"
+  top: "fc7_norm"
+}
+
+layers {
+  name: "fc7_silence"
+  type: SILENCE
+  bottom: "fc7_norm"
+}
+
+layers {
+  name: "flatten_input"
+  type: FLATTEN
+  bottom: "target_datum"
+  top: "target_datum_flat"  
+}
+
+layers {
+  name: "slice_extra_bit"
+  type: SLICE
+  bottom: "target_datum_flat"
+  top: "original_feature"
+  top: "dummy_feature"
+  slice_param {
+   slice_dim: 1
+   slice_point: 4096
+  }
+}
+
+layers {
+  name: "silence_dummy"
+  type: SILENCE
+  bottom: "dummy_feature"  
+}
+
+layers {
+  name: "fc7"
+  type: INNER_PRODUCT
+  bottom: "original_feature"
+  top: "ip1"
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+
+}
+
+layers {
+  name: "fc7_relu"
+  type: RELU
+  top: "ip2_nonorm"
+  bottom: "ip1"  
+}
+
+
+layers {
+  name: "word_embedding_norm"
+  type: NORMALIZATION
+  bottom: "ip2_nonorm"
+  top: "ip2"
+}

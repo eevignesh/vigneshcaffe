@@ -17,7 +17,7 @@
 using video_shot_sentences::VideoShotWindow;
 
 // TODO: Make this a parameter
-DEFINE_int32(max_tries, 20, "Maximum number of tries for adding negatives");
+DEFINE_int32(max_negative_tries, 100, "Maximum number of tries for adding negatives");
 
 namespace caffe {
 
@@ -86,18 +86,35 @@ void VideoShotWindowDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>&
   switch (this->layer_param_.video_shot_window_data_param().backend()) {
   case VideoShotWindowDataParameter_DB_LEVELDB:
     {
-    leveldb::DB* db_temp;
-    leveldb::Options options = GetLevelDBOptions();
-    options.create_if_missing = false;
-    LOG(INFO) << "Opening leveldb " << this->layer_param_.video_shot_window_data_param().source();
-    leveldb::Status status = leveldb::DB::Open(
-        options, this->layer_param_.video_shot_window_data_param().source(), &db_temp);
-    CHECK(status.ok()) << "Failed to open leveldb "
-                       << this->layer_param_.video_shot_window_data_param().source() << std::endl
-                       << status.ToString();
-    db_.reset(db_temp);
-    iter_.reset(db_->NewIterator(leveldb::ReadOptions()));
-    iter_->SeekToFirst();
+      leveldb::DB* db_temp;
+      leveldb::Options options = GetLevelDBOptions();
+      options.create_if_missing = false;
+      LOG(INFO) << "Opening leveldb " << this->layer_param_.video_shot_window_data_param().source();
+      leveldb::Status status = leveldb::DB::Open(
+          options, this->layer_param_.video_shot_window_data_param().source(), &db_temp);
+      CHECK(status.ok()) << "Failed to open leveldb "
+                         << this->layer_param_.video_shot_window_data_param().source() << std::endl
+                         << status.ToString();
+      db_.reset(db_temp);
+      iter_.reset(db_->NewIterator(leveldb::ReadOptions()));
+      iter_->SeekToFirst();
+    }
+
+    // Negative data buffer if needed
+    if (this->layer_param_.video_shot_window_data_param().negative_dataset() != "") {
+      leveldb::DB* db_temp;
+      leveldb::Options options = GetLevelDBOptions();
+      options.create_if_missing = false;
+      LOG(INFO) << "Opening leveldb " << this->layer_param_.video_shot_window_data_param().negative_dataset();
+      leveldb::Status status = leveldb::DB::Open(
+          options, this->layer_param_.video_shot_window_data_param().negative_dataset(), &db_temp);
+      CHECK(status.ok()) << "Failed to open leveldb "
+                         << this->layer_param_.video_shot_window_data_param().negative_dataset()
+                         << std::endl
+                         << status.ToString();
+      db_neg_.reset(db_temp);
+      iter_neg_.reset(db_neg_->NewIterator(leveldb::ReadOptions()));
+      iter_neg_->SeekToFirst();
     }
     break;
   case VideoShotWindowDataParameter_DB_LMDB:
@@ -115,6 +132,24 @@ void VideoShotWindowDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>&
     LOG(INFO) << "Opening lmdb " << this->layer_param_.video_shot_window_data_param().source();
     CHECK_EQ(mdb_cursor_get(mdb_cursor_, &mdb_key_, &mdb_value_, MDB_FIRST),
         MDB_SUCCESS) << "mdb_cursor_get failed";
+
+    // Negative buffer if provided
+    if (this->layer_param_.video_shot_window_data_param().negative_dataset() != "") {
+      CHECK_EQ(mdb_env_create(&mdb_env_neg_), MDB_SUCCESS) << "mdb_env_create failed";
+      CHECK_EQ(mdb_env_set_mapsize(mdb_env_neg_, 1099511627776), MDB_SUCCESS);  // 1TB
+      CHECK_EQ(mdb_env_open(mdb_env_neg_,
+               this->layer_param_.video_shot_window_data_param().negative_dataset().c_str(),
+               MDB_RDONLY|MDB_NOTLS, 0664), MDB_SUCCESS) << "mdb_env_open failed";
+      CHECK_EQ(mdb_txn_begin(mdb_env_neg_, NULL, MDB_RDONLY, &mdb_txn_neg_), MDB_SUCCESS)
+          << "mdb_txn_begin failed";
+      CHECK_EQ(mdb_open(mdb_txn_neg_, NULL, 0, &mdb_dbi_neg_), MDB_SUCCESS)
+          << "mdb_open failed";
+      CHECK_EQ(mdb_cursor_open(mdb_txn_neg_, mdb_dbi_neg_, &mdb_cursor_neg_), MDB_SUCCESS)
+          << "mdb_cursor_open failed";
+      LOG(INFO) << "Opening lmdb " << this->layer_param_.video_shot_window_data_param().negative_dataset();
+      CHECK_EQ(mdb_cursor_get(mdb_cursor_neg_, &mdb_key_neg_, &mdb_value_neg_, MDB_FIRST),
+          MDB_SUCCESS) << "mdb_cursor_get failed";
+    }
     break;
   case VideoShotWindowDataParameter_DB_VIDEO_ID_TEXT:
     CHECK_EQ(num_negative_samples_,0);
@@ -193,7 +228,7 @@ void VideoShotWindowDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>&
   //CHECK_LE(shot_window.target_shot_word().height(), 1);
   //CHECK_LE(shot_window.target_shot_word().width(), 1);
   CHECK_GE(feature_size_, 1);
-  CHECK_GE(context_size_, 2); // need atleast a context of two words
+  CHECK_GE(context_size_, 1); // need atleast a context of two words
 
   // We use a small hack: channels = context_size_+1, height = feature_size_
   (*top)[0]->Reshape(
@@ -226,32 +261,58 @@ void VideoShotWindowDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>&
    LOG(INFO) << "Initializing the negative buffer";
    int num_negatives_added = 0;
 
-   for (int nid = 0; nid < (FLAGS_max_tries*max_buffer_size_) ; ++nid) {
+   for (int nid = 0; nid < (FLAGS_max_negative_tries*max_buffer_size_) ; ++nid) {
     if (num_negatives_added % 1000 == 0) {
       LOG(INFO) << "Added " << num_negatives_added << " negatives to buffer";
     }
 
     switch (this->layer_param_.video_shot_window_data_param().backend()) {
     case VideoShotWindowDataParameter_DB_LEVELDB:
-      CHECK(iter_);
-      CHECK(iter_->Valid());
-      shot_window.ParseFromString(iter_->value().ToString());
-      iter_->Next();
-      if (!iter_->Valid()) {
-        iter_->SeekToFirst();
+
+      if (this->layer_param_.video_shot_window_data_param().negative_dataset() != "") {
+        CHECK(iter_neg_);
+        CHECK(iter_neg_->Valid());
+        shot_window.ParseFromString(iter_neg_->value().ToString());
+        iter_neg_->Next();
+        if (!iter_neg_->Valid()) {
+          iter_neg_->SeekToFirst();
+        }
+      } else {
+        CHECK(iter_);
+        CHECK(iter_->Valid());
+        shot_window.ParseFromString(iter_->value().ToString());
+        iter_->Next();
+        if (!iter_->Valid()) {
+          iter_->SeekToFirst();
+        }
       }
       break;
+
     case VideoShotWindowDataParameter_DB_LMDB:
-      CHECK_EQ(mdb_cursor_get(mdb_cursor_, &mdb_key_,
-            &mdb_value_, MDB_GET_CURRENT), MDB_SUCCESS);
-      shot_window.ParseFromArray(mdb_value_.mv_data,
-        mdb_value_.mv_size);
-      if (mdb_cursor_get(mdb_cursor_, &mdb_key_, &mdb_value_, MDB_NEXT)
-          != MDB_SUCCESS) {
-        CHECK_EQ(mdb_cursor_get(mdb_cursor_, &mdb_key_, &mdb_value_,
-                 MDB_FIRST), MDB_SUCCESS);
+      if (this->layer_param_.video_shot_window_data_param().negative_dataset() != "") {
+
+        CHECK_EQ(mdb_cursor_get(mdb_cursor_neg_, &mdb_key_neg_,
+              &mdb_value_neg_, MDB_GET_CURRENT), MDB_SUCCESS);
+        shot_window.ParseFromArray(mdb_value_neg_.mv_data,
+          mdb_value_neg_.mv_size);
+        if (mdb_cursor_get(mdb_cursor_neg_, &mdb_key_neg_, &mdb_value_neg_, MDB_NEXT)
+            != MDB_SUCCESS) {
+          CHECK_EQ(mdb_cursor_get(mdb_cursor_neg_, &mdb_key_neg_, &mdb_value_neg_,
+                   MDB_FIRST), MDB_SUCCESS);
+        }
+      } else {
+        CHECK_EQ(mdb_cursor_get(mdb_cursor_, &mdb_key_,
+              &mdb_value_, MDB_GET_CURRENT), MDB_SUCCESS);
+        shot_window.ParseFromArray(mdb_value_.mv_data,
+          mdb_value_.mv_size);
+        if (mdb_cursor_get(mdb_cursor_, &mdb_key_, &mdb_value_, MDB_NEXT)
+            != MDB_SUCCESS) {
+          CHECK_EQ(mdb_cursor_get(mdb_cursor_, &mdb_key_, &mdb_value_,
+                   MDB_FIRST), MDB_SUCCESS);
+        }
       }
       break;
+
     default:
       LOG(FATAL) << "Unknown database backend";
     }
@@ -281,6 +342,22 @@ void VideoShotWindowDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>&
   this->datum_height_ = feature_size_;
   this->datum_width_ = 1;
   this->datum_size_ = feature_size_ * this->datum_channels_;
+
+  // Close the negative dataset buffer
+  if (this->layer_param_.video_shot_window_data_param().negative_dataset() != "") {
+    switch (this->layer_param_.data_param().backend()) {
+      case DataParameter_DB_LEVELDB:
+        break;  // do nothing
+      case DataParameter_DB_LMDB:
+        mdb_cursor_close(mdb_cursor_neg_);
+        mdb_close(mdb_env_neg_, mdb_dbi_neg_);
+        mdb_txn_abort(mdb_txn_neg_);
+        mdb_env_close(mdb_env_neg_);
+        break;
+      default:
+        LOG(FATAL) << "Unknown database backend";
+    }
+  }
 }
 
 // This function is used to create a thread that prefetches the data.
@@ -389,6 +466,9 @@ void VideoShotWindowDataLayer<Dtype>::InternalThreadEntry() {
 
     if (this->output_labels_) {
       top_label[item_id] = shot_window.video_id();
+      if (this->layer_param_.video_shot_window_data_param().display_all_ids()) {
+        LOG(WARNING) << "Item-id:Video-id:Shot-id:" << item_id << ":" << shot_window.video_id() << ":" << shot_window.shot_id();
+      }
     }
 
     // go to the next iter

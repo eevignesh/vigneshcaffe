@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+LOG_DIR="/data2/vigneshr/vigneshcaffe/projects/med_embedding_with_exemplars_full/train_mednet_relu_9_4096_log_dir/"
+rm $LOG_DIR/*
+GLOG_log_dir=$LOG_DIR ./.build_debug/tools/caffe.bin train \
+  --solver=projects/med_embedding_with_exemplars_full/mednet_relu_9_solver.prototxt --gpu=1
+#  --weights=projects/med_embedding_with_relu/mednet_pair_relu_1_4096_iter_12000.caffemodel
+#  --weights=models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel

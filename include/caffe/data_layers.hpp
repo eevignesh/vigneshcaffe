@@ -17,6 +17,7 @@
 #include "caffe/internal_thread.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
+#include "caffe/proto/video_shot_sentences.pb.h"
 
 namespace caffe {
 
@@ -125,6 +126,84 @@ class DataLayer : public BasePrefetchingDataLayer<Dtype> {
   MDB_val mdb_key_, mdb_value_;
 };
 
+
+/**
+ * @brief Reads and provides video shots to the net.
+ *
+ * TODO(dox): thorough documentation for Forward and proto params.
+ */
+
+template <typename Dtype>
+class VideoShotsDataLayer : public BasePrefetchingDataLayer<Dtype> {
+ public:
+  explicit VideoShotsDataLayer(const LayerParameter& param)
+      : BasePrefetchingDataLayer<Dtype>(param) {}
+  virtual ~VideoShotsDataLayer();
+  virtual void DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+  virtual inline LayerParameter_LayerType type() const {
+    return LayerParameter_LayerType_DATA;
+  }
+
+  virtual inline int AddToBuffer(const Datum data);
+  virtual inline void RandomShuffleTopids(int n);
+  virtual inline void InsertIntoQueue(const video_shot_sentences::VideoShots& video_shots,
+      Dtype* top_data, int &item_id);
+  virtual inline int ExactNumBottomBlobs() const { return 0; }
+  virtual inline int MinTopBlobs() const { return 1; }
+  virtual inline int MaxTopBlobs() const { return 2; }
+
+ protected:
+  virtual void InternalThreadEntry();
+
+
+  int feature_size_;
+  int context_size_;
+  int batch_size_;
+
+  bool output_shot_distance_;
+
+  // LEVELDB
+  shared_ptr<leveldb::DB> db_;
+  shared_ptr<leveldb::Iterator> iter_;
+
+  // LMDB
+  MDB_env* mdb_env_;
+  MDB_dbi mdb_dbi_;
+  MDB_txn* mdb_txn_;
+  MDB_cursor* mdb_cursor_;
+  MDB_val mdb_key_, mdb_value_;
+
+  // For negative smapling
+  Blob<Dtype> negatives_;
+  std::set<string> negative_keys_set_; // faster lookup
+  std::vector<string> negative_id_to_key_;
+  vector<Dtype> buffer_ids_;
+  int max_buffer_size_;
+  size_t negative_swap_percentage_; // should be less than 100
+  int num_negative_samples_;
+
+  // LEVELDB-NEGATIVES
+  shared_ptr<leveldb::DB> db_neg_;
+  shared_ptr<leveldb::Iterator> iter_neg_;
+
+  // LMDB-NEGATIVES
+  MDB_env* mdb_env_neg_;
+  MDB_dbi mdb_dbi_neg_;
+  MDB_txn* mdb_txn_neg_;
+  MDB_cursor* mdb_cursor_neg_;
+  MDB_val mdb_key_neg_, mdb_value_neg_;
+
+
+  // State-parameter of reading
+  int target_ctr_;
+  int context_ctr_;
+  video_shot_sentences::VideoShots current_video_shots_;
+  vector<Dtype> video_ids_;
+};
+
+
 /**
  * @brief Reads and provides video shot windows to the net.
  *
@@ -180,6 +259,18 @@ class VideoShotWindowDataLayer : public BasePrefetchingDataLayer<Dtype> {
   int max_buffer_size_;
   size_t negative_swap_percentage_; // should be less than 100
   int num_negative_samples_;
+
+  // LEVELDB-NEGATIVES
+  shared_ptr<leveldb::DB> db_neg_;
+  shared_ptr<leveldb::Iterator> iter_neg_;
+
+  // LMDB-NEGATIVES
+  MDB_env* mdb_env_neg_;
+  MDB_dbi mdb_dbi_neg_;
+  MDB_txn* mdb_txn_neg_;
+  MDB_cursor* mdb_cursor_neg_;
+  MDB_val mdb_key_neg_, mdb_value_neg_;
+
 };
 
 

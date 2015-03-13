@@ -12,6 +12,14 @@ message VideoShotWindow {
   repeated caffe.Datum context_shot_words = 5; // The shot words which are in the context
 }
 
+message VideoShots {
+  optional int32 video_id = 1; // Video id required for paragraph models
+  repeated int32 shot_ids = 2; // shots ids for the shots
+  repeated caffe.Datum shot_words = 3; // shots in the video
+  optional string video_name = 4; // name of the video
+}
+
+
 //message VideoShotWindow {
 //  optional int32 video_id = 1;
 //  //optional string video_name = 2;
