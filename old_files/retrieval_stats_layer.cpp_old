@@ -1,0 +1,223 @@
+#include <algorithm>
+#include <functional>
+#include <utility>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
+
+#include "caffe/layer.hpp"
+#include "caffe/util/io.hpp"
+#include "caffe/util/vignesh_util.hpp"
+#include "caffe/util/math_functions.hpp"
+#include "caffe/vision_layers.hpp"
+
+namespace caffe {
+
+template <typename Dtype>
+void RetrievalStatsLayer<Dtype>::LayerSetUp(
+  const vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>* top) {
+
+  string id_to_class_file = this->layer_param_.retrieval_stats_param().id_to_class_file();
+
+  stats_output_file_ = this->layer_param_.retrieval_stats_param().stats_output_file();
+  exclude_same_video_shots_ = this->layer_param_.retrieval_stats_param().exclude_same_video_shots();
+
+  // Read the video-id to class map from the file
+  ifstream id2class_stream;
+  id2class_stream.open(id_to_class_file.c_str());
+  string line;
+  while (getline(id2class_stream, line)) {
+    vector<string> line_splits = strsplit(line, ",");
+    CHECK_EQ(2, line_splits.size());
+    std::string::size_type sval;
+    int video_id = stoi(line_splits[0], &sval);
+    CHECK_EQ(sval, line_splits[0].size());
+    int class_id = stoi(line_splits[1], &sval);
+    CHECK_EQ(sval, line_splits[1].size());
+    video_id_to_class_.insert(make_pair(video_id, class_id));
+  }
+  id2class_stream.close();
+
+  batch_size_ = bottom[0]->num();
+  feature_dimension_ = bottom[0]->count()/bottom[0]->num();
+
+  CHECK_GE(video_id_to_class_.size(), 1) << "need atleast one entry in id-to-class map!";
+  
+  distance_matrix_.Reshape(batch_size_, batch_size_, 1, 1);
+  norm_matrix_.Reshape(batch_size_, 1, 1, 1);
+  //temp_matrix_.Reshape(batch_size_, feature_dimension_, 1, 1);
+
+  //sum_multiplier_f_.Reshape(feature_dimension_, 1, 1, 1);
+  sum_multiplier_n_.Reshape(batch_size_, 1, 1, 1);
+  //caffe_set(sum_multiplier_f_.count(), Dtype(1), sum_multiplier_f_.mutable_cpu_data());
+  caffe_set(sum_multiplier_n_.count(), Dtype(1), sum_multiplier_n_.mutable_cpu_data());
+
+}
+
+template <typename Dtype>
+void RetrievalStatsLayer<Dtype>::Reshape(
+  const vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>* top) {
+  CHECK_EQ(bottom[0]->num(), bottom[1]->num())
+      << "The data and label should have the same number.";
+  CHECK_EQ(bottom[1]->channels(), 1);
+  CHECK_EQ(bottom[1]->height(), 1);
+  CHECK_EQ(bottom[1]->width(), 1);
+
+  (*top)[0]->Reshape(1, 1, 1, 1); // Mean ap 
+  (*top)[1]->Reshape(1, 1, 1, 1); // hit@1
+  (*top)[2]->Reshape(1, 1, 1, 1); // hit@5
+}
+
+template <typename Dtype>
+struct SortByDistance {
+
+  bool operator() (int i, int j) { 
+    return (distance_[i] < distance_[j]);
+  }
+
+  SortByDistance(const Dtype* data) {
+    distance_ = data;
+  }
+
+  const Dtype* distance_;
+
+};
+
+template <typename Dtype>
+void RetrievalStatsLayer<Dtype>:: ComputeStats(const Dtype* video_ids, const vector<int>& sort_ids,
+    double& ap, double& acc_1,
+    double& acc_5, const int current_video_id) {
+  ap = 0; acc_1 = 0; acc_5 = 0;
+  double val = 0, ret = 0;
+  int current_class_id = video_id_to_class_[current_video_id];
+  //vector<int> precisions;
+  // Note, the first shot is always excluded ... since it is the same shot
+  for (int i = 1; i < sort_ids.size(); ++i) {
+    if ( (static_cast<int>(video_ids[sort_ids[i]]) != current_video_id) ||
+        !this->exclude_same_video_shots_) {
+      val++;
+      if (video_id_to_class_[static_cast<int>(video_ids[sort_ids[i]])] == current_class_id) {
+        if (val <= 1) {
+          acc_1++;
+        }
+        if (val <= 5) {
+          acc_5++;
+        }
+        ret++;
+        ap += ret/val;
+        //precisions.push_back(val);
+      }
+    }
+  }
+
+  if (ret > 0) {
+    ap /= ret;
+  }
+
+  acc_5 /= 5;
+
+  /*string precision_string = "";
+  for (int i = 0; i < precisions.size(); ++i) {
+    precision_string += stringprintf("%d:", precisions[i]);
+  }
+  LOG(INFO) << "Precision-string:" << precision_string;*/
+}
+
+template <typename Dtype>
+void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+    vector<Blob<Dtype>*>* top) {
+
+  ofstream stats_output;
+
+  if (stats_output_file_ != "") {
+    stats_output.open(stats_output_file_);
+    stats_output << "#video_id,class_id,ap,acc@1,acc@5" << std::endl;
+  }
+
+  const Dtype* bottom_data = bottom[0]->cpu_data();
+  const Dtype* bottom_video_ids = bottom[1]->cpu_data();
+  Dtype* norm_data = norm_matrix_.mutable_cpu_data();
+  // Vector norms
+  //caffe_powx(bottom[0]->count(), bottom_data, Dtype(2), temp_matrix_.mutable_cpu_data());
+  //caffe_cpu_gemv<Dtype>(CblasNoTrans, batch_size_, feature_dimension_, 1,
+  //    temp_matrix_.cpu_data(), sum_multiplier_f_.cpu_data(), 0., norm_matrix_.mutable_cpu_data());
+
+  caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasTrans, batch_size_, batch_size_, feature_dimension_,
+      (Dtype)(-2.0), bottom_data, bottom_data, (Dtype)0., distance_matrix_.mutable_cpu_data());
+
+
+  // Euclidean distance: Change the next three steps to use only dot-product
+
+  /*for (int i = 0; i < batch_size_; ++i) {
+    norm_data[i] = distance_matrix_.data_at(i,i,0,0);
+  }
+
+  caffe_cpu_gemm<Dtype>(CblasNoTrans,CblasNoTrans, batch_size_, batch_size_, 1,
+      (Dtype)(1.0), norm_matrix_.cpu_data(), sum_multiplier_n_.cpu_data(), 1.0,
+      distance_matrix_.mutable_cpu_data());
+  caffe_cpu_gemm<Dtype>(CblasNoTrans,CblasNoTrans, batch_size_, batch_size_, 1,
+      (Dtype)(1.0), sum_multiplier_n_.cpu_data(), norm_matrix_.cpu_data(), 1.,
+      distance_matrix_.mutable_cpu_data());*/
+
+  
+  /*for (int i = 0; i < batch_size_; ++i) {
+    string dist_string = "";
+    for (int j =0; j < batch_size_; ++j) {
+      dist_string += stringprintf("%f:", static_cast<float>(distance_matrix_.data_at(i,j,0,0)));
+    }
+    std::cout << "Dist@" << i << " : " << dist_string << std::endl;
+  }*/
+
+  double mean_ap = 0, mean_acc_1 = 0, mean_acc_5 = 0;
+  std::vector<int> sort_ids(batch_size_);
+  for (int i = 0; i < batch_size_; ++i) {
+    double ap, acc_1, acc_5;
+    std::iota(sort_ids.begin(), sort_ids.end(), 0);
+    //temp_video_ids_.assign(bottom_video_ids, bottom_video_ids + batch_size_);
+
+    /*string dist_string = "";
+    for (int k = 0; k < batch_size_; ++k) {
+      dist_string += stringprintf("%d:", static_cast<int>(bottom_video_ids[sort_ids[k]]));
+    }
+    std::cout << "Orig@" << i << ":" << dist_string << std::endl;*/
+
+    Dtype* same_val = distance_matrix_.mutable_cpu_data() + distance_matrix_.offset(i,i,0,0);
+    same_val[0] = -1e5; // set the diagonal to a very small value
+
+    SortByDistance<Dtype> sbd(distance_matrix_.cpu_data() +
+        distance_matrix_.offset(i, 0, 0, 0));
+    std::sort(sort_ids.begin(), sort_ids.end(), sbd);
+    
+    CHECK_EQ(sort_ids[0], i);
+    /*dist_string = "";
+    for (int k = 0; k < batch_size_; ++k) {
+      dist_string += stringprintf("%d:", static_cast<int>(bottom_video_ids[sort_ids[k]]));
+    }
+    std::cout << "Sort@" << i << ":" << dist_string << std::endl;*/
+
+    ComputeStats(bottom_video_ids, sort_ids, ap, acc_1, acc_5, static_cast<int>(bottom_video_ids[i]));
+    mean_ap += ap;
+    mean_acc_1 += acc_1;
+    mean_acc_5 += acc_5;
+
+    if (stats_output_file_ != "") {
+      stats_output << static_cast<int>(bottom_video_ids[i]) << ","
+        << video_id_to_class_[static_cast<int>(bottom_video_ids[i])]
+        << "," << ap << "," << acc_1 << "," << acc_5 << std::endl;
+    }
+  }
+
+  if (stats_output_file_ != "") {
+    stats_output.close();
+  }
+
+  (*top)[0]->mutable_cpu_data()[0] = mean_ap/batch_size_;
+  (*top)[1]->mutable_cpu_data()[0] = mean_acc_1/batch_size_;
+  (*top)[2]->mutable_cpu_data()[0] = mean_acc_5/batch_size_;
+  // This layer should not be used as a loss function.
+}
+
+INSTANTIATE_CLASS(RetrievalStatsLayer);
+
+}  // namespace caffe

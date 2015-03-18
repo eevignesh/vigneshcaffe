@@ -7,10 +7,10 @@ import sys
 
 FLAGS = gflags.FLAGS
 
-gflags.DEFINE_string('train_log_file', '/data2/vigneshr/vigneshcaffe/projects/med_embedding_pairs/train_mednet_pair_4_1024_relu_log_dir/caffe.INFO', 'the training log file')
-gflags.DEFINE_string('output_plot_dir', '/afs/cs.stanford.edu/u/vigneshr/www/misc/mednet_pair_3_1024/', 'output plot file to which all the plots will be saved')
+gflags.DEFINE_string('train_log_file', '/data2/vigneshr/vigneshcaffe/projects/med_embedding_context_full/train_mednet_cont_3_4096_ret_log_dir/caffe.bin.INFO', 'the training log file')
+gflags.DEFINE_string('output_plot_dir', '/afs/cs.stanford.edu/u/vigneshr/www/misc/mednet_context_full_2/', 'output plot file to which all the plots will be saved')
 gflags.DEFINE_integer('test_interval', 50, 'test is run per these many training iterations')
-gflags.DEFINE_string('stats_key_words', 'Train net output #0: loss_output,Test net output #2: test_map,Test net output #0: test_hit_at_1',  #'Train net output #0: loss,Test net output #10: average_accuracy, lr',
+gflags.DEFINE_string('stats_key_words', 'class: 1:inter:,class: 1:intra:,class: 1:AP:,Test net output #2: test_map = ',#,Test net output #0: test_hit_at_1,Test net output #0: loss_output_svm',  #'Train net output #0: loss,Test net output #10: average_accuracy, lr',
   'comma separted list of keywords which corresponds to stats.'
   'For example if you want to read a line:'
   'Test net output #16: average_precision_per_class = 0.972'
@@ -36,11 +36,11 @@ def parse_log_file(log_file, stats_key_words):
           # Strip the time and convert it to datetime format
           dtime = datetime.datetime.strptime('%s 2015'%(line[1:14]), '%m%d %H:%M:%S %Y')
           # Get the reminder after removing the key words
-          line_residue = line[(match_idx)+len(stats_key_words)+3:]
+          line_residue = line[(match_idx)+len(stats_key_words):]
           # In case the loss weight is provided, we will read that as well
           line_residue_splits = line_residue.split('(*')
           # First get the loss multiplied values
-          true_value = re.findall('(\d+\.?\d*)', line_residue_splits[0])
+          true_value = re.findall('(-?\d+\.?\d*)', line_residue_splits[0])
           iter_value = -1
           # if the iter number is also provided in the  line, use it as well
           if len(true_value)==2 and 'iter' in line_residue_splits[0]:
@@ -52,7 +52,7 @@ def parse_log_file(log_file, stats_key_words):
             print('Found more than values in the line: %s --> %d'%(line, len(true_value)))
           # if the loss weighted part is present, plot that as well
           if len(line_residue_splits) == 2:
-            weighted_value = re.findall('(\d+\.?\d*)', line_residue_splits[1])
+            weighted_value = re.findall('(-?\d+\.?\d*)', line_residue_splits[1])
             if len(weighted_value) == 2:
               weighted_key = stats_key_words + ' with weight %s'%(weighted_value[0])
               if weighted_key not in plot_values:
@@ -79,12 +79,14 @@ def main(argv):
   for key in plot_values:
     idx += 1;
     fid = open('%s/data_%03d.txt'%(FLAGS.output_plot_dir, idx), 'w')
-    fid.write('# ---------------> %d:%s <---------------- '%(idx, key))
+    fid.write('# ---------------> %d:%s <----------------\n'%(idx, key))
+    val_ctr = 0
     for value in plot_values[key]:
       if (len(value) == 3):
         fid.write('%d, %f\n'%(value[1], value[2]))
       else:
-        fid.write('%f\n'%(value[1]))
+        fid.write('%d, %f\n'%(val_ctr*FLAGS.test_interval, value[1]))
+        val_ctr = val_ctr + 1
     fid.close()
     #print(plot_values[key])
     if len(plot_values[key])>0:
@@ -103,6 +105,7 @@ def main(argv):
         values = [p[1] for p in plot_values[key]]
         ax.plot([r*FLAGS.test_interval for r in range(len(values))], values)
         plt.title(key)
+      plt.grid(True)
       fig.savefig('%s/plot_%03d.png'%(FLAGS.output_plot_dir, idx))
       plt.close()
 

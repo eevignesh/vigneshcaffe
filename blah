@@ -1,0 +1,173 @@
+
+
+#--------------------
+#12k
+#I0310 20:34:24.551734 18707 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.389406
+#I0310 20:34:24.552062 18707 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.368107
+#I0310 20:34:24.552096 18707 solver.cpp:313]     Test net output #2: test_map = 0.215367
+#40k
+#I0310 20:39:31.076270 23742 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.354388
+#I0310 20:39:31.076864 23742 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.336348
+#I0310 20:39:31.076907 23742 solver.cpp:313]     Test net output #2: test_map = 0.195143
+#--------------------
+#I0227 18:01:07.529070 26301 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.6
+#I0227 18:01:07.529183 26301 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.581447
+#I0227 18:01:07.529266 26301 solver.cpp:313]     Test net output #2: test_map = 0.369707
+
+# ours
+#I0227 18:02:44.935051 27987 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.604033
+#I0227 18:02:44.935159 27987 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.582752
+#I0227 18:02:44.935179 27987 solver.cpp:313]     Test net output #2: test_map = 0.373162
+
+# ----------------------------
+# Validation set (only trained on train data of event kit)
+#I0301 02:06:24.966698  9748 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.47448
+#I0301 02:06:24.966783  9748 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.44121
+#I0301 02:06:24.966814  9748 solver.cpp:313]     Test net output #2: test_map = 0.293538
+
+# ------------ Old dev set only
+
+# fc7
+0.3876
+
+# ourse (full event kit data 12k iterations)
+I0301 03:42:38.617466 28055 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.643061
+I0301 03:42:38.617616 28055 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.619146
+I0301 03:42:38.617636 28055 solver.cpp:313]     Test net output #2: test_map = 0.456121
+
+# ours (full event kit data)
+I0301 03:26:32.301861 23312 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.638078
+I0301 03:26:32.301978 23312 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.617224
+I0301 03:26:32.301998 23312 solver.cpp:313]     Test net output #2: test_map = 0.45343
+ 
+# ours (training event kit data only)
+I0228 19:54:37.677220 10367 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.636892
+I0228 19:54:37.685897 10367 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.615184
+I0228 19:54:37.685924 10367 solver.cpp:313]     Test net output #2: test_map = 0.44639
+
+
+# ---------------- New test set
+#
+# fc7
+I0228 23:49:14.523268 19658 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.479231
+I0228 23:49:14.523386 19658 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.452496
+I0228 23:49:14.523404 19658 solver.cpp:313]     Test net output #2: test_map = 0.232157
+
+# ours
+I0228 23:56:03.484025 22627 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.492235
+I0228 23:56:03.499491 22627 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.471281
+I0228 23:56:03.499516 22627 solver.cpp:313]     Test net output #2: test_map = 0.299291
+
+# ours (full event kit data 8k iterations)
+I0301 03:33:30.187484 24671 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.498089
+I0301 03:33:30.187636 24671 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.471922
+I0301 03:33:30.187654 24671 solver.cpp:313]     Test net output #2: test_map = 0.30083
+
+
+# ------------------ Video level retrieval (Old dev set) --------
+
+# ours (full event kit 30k iterations)
+I0301 23:31:13.174881 19133 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.676923
+I0301 23:31:13.192164 19133 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.627077
+I0301 23:31:13.192181 19133 solver.cpp:313]     Test net output #2: test_map = 0.457138
+
+
+# ours (full event kit data 16k iterations)
+I0301 05:55:51.321100 29865 solver.cpp:211]     Train net output #0: test_hit_at_1 = iter = 0 value = 0.692308
+I0301 05:55:51.321130 29865 solver.cpp:211]     Train net output #1: test_hit_at_5 = iter = 0 value = 0.633538
+I0301 05:55:51.321154 29865 solver.cpp:211]     Train net output #2: test_map = iter = 0 value = 0.463346
+
+# fc7
+I0301 05:59:14.052013 30877 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.701538
+I0301 05:59:14.052078 30877 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.628
+I0301 05:59:14.052098 30877 solver.cpp:313]     Test net output #2: test_map = 0.412389
+
+
+# ------------------ Video level retrieval (New dev set) --------
+
+# ours (full event kit data 16k iterations)
+I0301 06:09:12.323336  1943 solver.cpp:211]     Train net output #0: test_hit_at_1 = iter = 0 value = 0.592928
+I0301 06:09:12.323367  1943 solver.cpp:211]     Train net output #1: test_hit_at_5 = iter = 0 value = 0.564967
+I0301 06:09:12.323389  1943 solver.cpp:211]     Train net output #2: test_map = iter = 0 value = 0.398243
+
+# fc7
+I0301 06:05:47.775190   949 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.509046
+I0301 06:05:47.775292   949 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.487664
+I0301 06:05:47.775315   949 solver.cpp:313]     Test net output #2: test_map = 0.314322
+
+
+
+
+
+
+
+
+
+
+#------------------------------- Full Event kits -------------
+# our exexmplars full 9 88k
+I0308 22:30:58.617007  5278 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.370115
+I0308 22:30:58.617300  5278 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.356137
+I0308 22:30:58.617333  5278 solver.cpp:313]     Test net output #2: test_map = 0.200776
+
+# our exemplars full 7 (16k) c.v for retrieval (0.9 dropout, caffenet initializtion, 1 layer, no hacks)
+I0309 14:54:10.345721 14006 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.436793
+I0309 14:54:10.346051 14006 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.413618
+I0309 14:54:10.346083 14006 solver.cpp:313]     Test net output #2: test_map = 0.211093
+
+# --------- fc7
+I0308 20:47:58.055793 32697 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.435908
+I0308 20:47:58.055892 32697 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.414871
+I0308 20:47:58.055922 32697 solver.cpp:313]     Test net output #2: test_map = 0.193589
+
+# our exemplars full 9 ret lr=0.001, nosquare id, 500 buffer, 99 replacement, dropout = 0.9, 82k iterations
+I0313 02:22:41.297361 24350 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.438344
+I0313 02:22:41.297667 24350 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.416063
+I0313 02:22:41.297683 24350 solver.cpp:313]     Test net output #2: test_map = 0.217099
+
+# ------------ fc7 (video) ------------
+I0308 22:56:10.411021  6802 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.45858
+I0308 22:56:10.411360  6802 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.416174
+I0308 22:56:10.411411  6802 solver.cpp:313]     Test net output #2: test_map = 0.215512
+
+# our exemplars full 7 16k
+I0309 14:40:10.540415  2458 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.467456
+I0309 14:40:10.540493  2458 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.425937
+I0309 14:40:10.540541  2458 solver.cpp:313]     Test net output #2: test_map = 0.233993
+
+# our exemplars full 9 ret lr=0.001, nosquare id, 500 buffer, 99 replacement, dropout = 0.9, 82k iterations
+I0313 01:56:45.351107 18707 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.463018
+I0313 01:56:45.351171 18707 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.424359
+I0313 01:56:45.351193 18707 solver.cpp:313]     Test net output #2: test_map = 0.236862
+
+
+# -------------------------- Test event kits + distractors ----------------
+# (Video) fc7
+I0312 01:42:51.319612 31845 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.162003
+I0312 01:42:51.319660 31845 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.138439
+I0312 01:42:51.319671 31845 solver.cpp:313]     Test net output #2: test_map = 0.0627404
+
+# (Video) our 12k
+I0312 01:51:16.798954  2987 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.166421
+I0312 01:51:16.799017  2987 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.13461
+I0312 01:51:16.799041  2987 solver.cpp:313]     Test net output #2: test_map = 0.0591559
+
+
+# (Shots) 40k
+I0312 02:23:23.550626  3534 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.158577
+I0312 02:23:23.559676  3534 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.149734
+I0312 02:23:23.559698  3534 solver.cpp:313]     Test net output #2: test_map = 0.0605257
+
+
+# (Shots) fc7
+I0312 02:40:46.153642  7711 solver.cpp:267] Testing iter 0/1
+I0312 02:55:04.919651  7711 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.195257
+I0312 02:55:04.929214  7711 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.183023
+I0312 02:55:04.929260  7711 solver.cpp:313]     Test net output #2: test_map = 0.0610135
+
+
+# (Shots) our 12k
+I0312 03:26:04.355288 10531 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.186281
+I0312 03:26:04.363837 10531 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.178413
+I0312 03:26:04.363893 10531 solver.cpp:313]     Test net output #2: test_map = 0.0700516
+

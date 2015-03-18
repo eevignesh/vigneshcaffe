@@ -1,0 +1,1497 @@
+Log file created at: 2015/01/13 23:38:14
+Running on machine: tibet.stanford.edu
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0113 23:38:14.600505 18493 caffe.cpp:98] Use GPU with device ID 0
+I0113 23:38:16.166836 18493 caffe.cpp:106] Starting Optimization
+I0113 23:38:16.166982 18493 solver.cpp:34] Initializing solver from parameters: 
+test_iter: 1
+test_interval: 500
+base_lr: 0.01
+display: 100
+max_iter: 10000
+lr_policy: "inv"
+gamma: 0.0001
+power: 0.75
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 5000
+snapshot_prefix: "examples/mnist/lenet"
+solver_mode: GPU
+net: "examples/mnist/lenet_train_test_with_class_stats.prototxt"
+I0113 23:38:16.167222 18493 solver.cpp:69] Creating training net from net file: examples/mnist/lenet_train_test_with_class_stats.prototxt
+I0113 23:38:16.167755 18493 net.cpp:275] The NetState phase (0) differed from the phase (1) specified by a rule in layer mnist
+I0113 23:38:16.167798 18493 net.cpp:275] The NetState phase (0) differed from the phase (1) specified by a rule in layer classification_stats
+I0113 23:38:16.167927 18493 net.cpp:39] Initializing net from parameters: 
+name: "LeNet"
+layers {
+  top: "data"
+  top: "label"
+  name: "mnist"
+  type: DATA
+  data_param {
+    source: "examples/mnist/mnist_train_lmdb"
+    batch_size: 64
+    backend: LMDB
+  }
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+}
+layers {
+  bottom: "data"
+  top: "conv1"
+  name: "conv1"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 20
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  bottom: "conv1"
+  top: "pool1"
+  name: "pool1"
+  type: POOLING
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layers {
+  bottom: "pool1"
+  top: "conv2"
+  name: "conv2"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  bottom: "conv2"
+  top: "pool2"
+  name: "pool2"
+  type: POOLING
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layers {
+  bottom: "pool2"
+  top: "ip1"
+  name: "ip1"
+  type: INNER_PRODUCT
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  bottom: "ip1"
+  top: "ip1"
+  name: "relu1"
+  type: RELU
+}
+layers {
+  bottom: "ip1"
+  top: "ip2"
+  name: "ip2"
+  type: INNER_PRODUCT
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  bottom: "ip2"
+  bottom: "label"
+  top: "loss"
+  name: "loss"
+  type: SOFTMAX_LOSS
+}
+state {
+  phase: TRAIN
+}
+I0113 23:38:16.168750 18493 net.cpp:56] Memory required for data: 0
+I0113 23:38:16.168824 18493 net.cpp:67] Creating Layer mnist
+I0113 23:38:16.168856 18493 net.cpp:356] mnist -> data
+I0113 23:38:16.168901 18493 net.cpp:356] mnist -> label
+I0113 23:38:16.168934 18493 net.cpp:96] Setting up mnist
+I0113 23:38:16.169060 18493 data_layer.cpp:68] Opening lmdb examples/mnist/mnist_train_lmdb
+I0113 23:38:16.169111 18493 data_layer.cpp:128] output data size: 64,1,28,28
+I0113 23:38:16.169299 18493 base_data_layer.cpp:64] Initializing prefetch
+I0113 23:38:16.169374 18493 base_data_layer.cpp:66] Prefetch initialized.
+I0113 23:38:16.169396 18493 net.cpp:103] Top shape: 64 1 28 28 (50176)
+I0113 23:38:16.169415 18493 net.cpp:103] Top shape: 64 1 1 1 (64)
+I0113 23:38:16.169428 18493 net.cpp:113] Memory required for data: 200960
+I0113 23:38:16.169461 18493 net.cpp:67] Creating Layer conv1
+I0113 23:38:16.169479 18493 net.cpp:394] conv1 <- data
+I0113 23:38:16.169525 18493 net.cpp:356] conv1 -> conv1
+I0113 23:38:16.169555 18493 net.cpp:96] Setting up conv1
+I0113 23:38:16.170166 18493 net.cpp:103] Top shape: 64 20 24 24 (737280)
+I0113 23:38:16.170187 18493 net.cpp:113] Memory required for data: 3150080
+I0113 23:38:16.170243 18493 net.cpp:67] Creating Layer pool1
+I0113 23:38:16.170264 18493 net.cpp:394] pool1 <- conv1
+I0113 23:38:16.170299 18493 net.cpp:356] pool1 -> pool1
+I0113 23:38:16.170325 18493 net.cpp:96] Setting up pool1
+I0113 23:38:16.170378 18493 net.cpp:103] Top shape: 64 20 12 12 (184320)
+I0113 23:38:16.170397 18493 net.cpp:113] Memory required for data: 3887360
+I0113 23:38:16.170423 18493 net.cpp:67] Creating Layer conv2
+I0113 23:38:16.170442 18493 net.cpp:394] conv2 <- pool1
+I0113 23:38:16.170469 18493 net.cpp:356] conv2 -> conv2
+I0113 23:38:16.170493 18493 net.cpp:96] Setting up conv2
+I0113 23:38:16.173070 18493 net.cpp:103] Top shape: 64 50 8 8 (204800)
+I0113 23:38:16.173094 18493 net.cpp:113] Memory required for data: 4706560
+I0113 23:38:16.173163 18493 net.cpp:67] Creating Layer pool2
+I0113 23:38:16.173204 18493 net.cpp:394] pool2 <- conv2
+I0113 23:38:16.173254 18493 net.cpp:356] pool2 -> pool2
+I0113 23:38:16.173288 18493 net.cpp:96] Setting up pool2
+I0113 23:38:16.173319 18493 net.cpp:103] Top shape: 64 50 4 4 (51200)
+I0113 23:38:16.173342 18493 net.cpp:113] Memory required for data: 4911360
+I0113 23:38:16.173368 18493 net.cpp:67] Creating Layer ip1
+I0113 23:38:16.173390 18493 net.cpp:394] ip1 <- pool2
+I0113 23:38:16.173418 18493 net.cpp:356] ip1 -> ip1
+I0113 23:38:16.173454 18493 net.cpp:96] Setting up ip1
+I0113 23:38:16.216148 18493 net.cpp:103] Top shape: 64 500 1 1 (32000)
+I0113 23:38:16.216174 18493 net.cpp:113] Memory required for data: 5039360
+I0113 23:38:16.216209 18493 net.cpp:67] Creating Layer relu1
+I0113 23:38:16.216227 18493 net.cpp:394] relu1 <- ip1
+I0113 23:38:16.216255 18493 net.cpp:345] relu1 -> ip1 (in-place)
+I0113 23:38:16.216311 18493 net.cpp:96] Setting up relu1
+I0113 23:38:16.216326 18493 net.cpp:103] Top shape: 64 500 1 1 (32000)
+I0113 23:38:16.216354 18493 net.cpp:113] Memory required for data: 5167360
+I0113 23:38:16.216373 18493 net.cpp:67] Creating Layer ip2
+I0113 23:38:16.216398 18493 net.cpp:394] ip2 <- ip1
+I0113 23:38:16.216434 18493 net.cpp:356] ip2 -> ip2
+I0113 23:38:16.216466 18493 net.cpp:96] Setting up ip2
+I0113 23:38:16.217026 18493 net.cpp:103] Top shape: 64 10 1 1 (640)
+I0113 23:38:16.217046 18493 net.cpp:113] Memory required for data: 5169920
+I0113 23:38:16.217077 18493 net.cpp:67] Creating Layer loss
+I0113 23:38:16.217097 18493 net.cpp:394] loss <- ip2
+I0113 23:38:16.217160 18493 net.cpp:394] loss <- label
+I0113 23:38:16.217186 18493 net.cpp:356] loss -> loss
+I0113 23:38:16.217216 18493 net.cpp:96] Setting up loss
+I0113 23:38:16.217249 18493 net.cpp:103] Top shape: 1 1 1 1 (1)
+I0113 23:38:16.217267 18493 net.cpp:109]     with loss weight 1
+I0113 23:38:16.217305 18493 net.cpp:113] Memory required for data: 5169924
+I0113 23:38:16.217330 18493 net.cpp:170] loss needs backward computation.
+I0113 23:38:16.217347 18493 net.cpp:170] ip2 needs backward computation.
+I0113 23:38:16.217361 18493 net.cpp:170] relu1 needs backward computation.
+I0113 23:38:16.217375 18493 net.cpp:170] ip1 needs backward computation.
+I0113 23:38:16.217392 18493 net.cpp:170] pool2 needs backward computation.
+I0113 23:38:16.217411 18493 net.cpp:170] conv2 needs backward computation.
+I0113 23:38:16.217429 18493 net.cpp:170] pool1 needs backward computation.
+I0113 23:38:16.217445 18493 net.cpp:170] conv1 needs backward computation.
+I0113 23:38:16.217459 18493 net.cpp:172] mnist does not need backward computation.
+I0113 23:38:16.217473 18493 net.cpp:208] This network produces output loss
+I0113 23:38:16.217501 18493 net.cpp:467] Collecting Learning Rate and Weight Decay.
+I0113 23:38:16.217530 18493 net.cpp:219] Network initialization done.
+I0113 23:38:16.217546 18493 net.cpp:220] Memory required for data: 5169924
+I0113 23:38:16.217978 18493 solver.cpp:153] Creating test net (#0) specified by net file: examples/mnist/lenet_train_test_with_class_stats.prototxt
+I0113 23:38:16.218041 18493 net.cpp:275] The NetState phase (1) differed from the phase (0) specified by a rule in layer mnist
+I0113 23:38:16.218188 18493 net.cpp:39] Initializing net from parameters: 
+name: "LeNet"
+layers {
+  top: "data"
+  top: "label"
+  name: "mnist"
+  type: DATA
+  data_param {
+    source: "examples/mnist/mnist_test_lmdb"
+    batch_size: 1000
+    backend: LMDB
+  }
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+}
+layers {
+  bottom: "data"
+  top: "conv1"
+  name: "conv1"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 20
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  bottom: "conv1"
+  top: "pool1"
+  name: "pool1"
+  type: POOLING
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layers {
+  bottom: "pool1"
+  top: "conv2"
+  name: "conv2"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  bottom: "conv2"
+  top: "pool2"
+  name: "pool2"
+  type: POOLING
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layers {
+  bottom: "pool2"
+  top: "ip1"
+  name: "ip1"
+  type: INNER_PRODUCT
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  bottom: "ip1"
+  top: "ip1"
+  name: "relu1"
+  type: RELU
+}
+layers {
+  bottom: "ip1"
+  top: "ip2"
+  name: "ip2"
+  type: INNER_PRODUCT
+  blobs_lr: 1
+  blobs_lr: 2
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  bottom: "ip2"
+  bottom: "label"
+  top: "accuracy_per_class"
+  top: "average_precision_per_class"
+  top: "average_accuracy"
+  name: "classification_stats"
+  type: CLASSIFICATION_STATS
+  include {
+    phase: TEST
+  }
+  classification_stats_param {
+    num_classes: 10
+  }
+}
+layers {
+  bottom: "ip2"
+  bottom: "label"
+  top: "loss"
+  name: "loss"
+  type: SOFTMAX_LOSS
+}
+state {
+  phase: TEST
+}
+I0113 23:38:16.219246 18493 net.cpp:56] Memory required for data: 0
+I0113 23:38:16.219301 18493 net.cpp:67] Creating Layer mnist
+I0113 23:38:16.219328 18493 net.cpp:356] mnist -> data
+I0113 23:38:16.219365 18493 net.cpp:356] mnist -> label
+I0113 23:38:16.219394 18493 net.cpp:96] Setting up mnist
+I0113 23:38:16.219466 18493 data_layer.cpp:68] Opening lmdb examples/mnist/mnist_test_lmdb
+I0113 23:38:16.219501 18493 data_layer.cpp:128] output data size: 1000,1,28,28
+I0113 23:38:16.222626 18493 base_data_layer.cpp:64] Initializing prefetch
+I0113 23:38:16.222683 18493 base_data_layer.cpp:66] Prefetch initialized.
+I0113 23:38:16.222705 18493 net.cpp:103] Top shape: 1000 1 28 28 (784000)
+I0113 23:38:16.222751 18493 net.cpp:103] Top shape: 1000 1 1 1 (1000)
+I0113 23:38:16.222765 18493 net.cpp:113] Memory required for data: 3140000
+I0113 23:38:16.222800 18493 net.cpp:67] Creating Layer label_mnist_1_split
+I0113 23:38:16.222827 18493 net.cpp:394] label_mnist_1_split <- label
+I0113 23:38:16.222861 18493 net.cpp:356] label_mnist_1_split -> label_mnist_1_split_0
+I0113 23:38:16.222898 18493 net.cpp:356] label_mnist_1_split -> label_mnist_1_split_1
+I0113 23:38:16.222923 18493 net.cpp:96] Setting up label_mnist_1_split
+I0113 23:38:16.222946 18493 net.cpp:103] Top shape: 1000 1 1 1 (1000)
+I0113 23:38:16.222961 18493 net.cpp:103] Top shape: 1000 1 1 1 (1000)
+I0113 23:38:16.222975 18493 net.cpp:113] Memory required for data: 3148000
+I0113 23:38:16.223002 18493 net.cpp:67] Creating Layer conv1
+I0113 23:38:16.223022 18493 net.cpp:394] conv1 <- data
+I0113 23:38:16.223050 18493 net.cpp:356] conv1 -> conv1
+I0113 23:38:16.223079 18493 net.cpp:96] Setting up conv1
+I0113 23:38:16.223186 18493 net.cpp:103] Top shape: 1000 20 24 24 (11520000)
+I0113 23:38:16.223207 18493 net.cpp:113] Memory required for data: 49228000
+I0113 23:38:16.223245 18493 net.cpp:67] Creating Layer pool1
+I0113 23:38:16.223266 18493 net.cpp:394] pool1 <- conv1
+I0113 23:38:16.223294 18493 net.cpp:356] pool1 -> pool1
+I0113 23:38:16.223316 18493 net.cpp:96] Setting up pool1
+I0113 23:38:16.223340 18493 net.cpp:103] Top shape: 1000 20 12 12 (2880000)
+I0113 23:38:16.223358 18493 net.cpp:113] Memory required for data: 60748000
+I0113 23:38:16.223386 18493 net.cpp:67] Creating Layer conv2
+I0113 23:38:16.223422 18493 net.cpp:394] conv2 <- pool1
+I0113 23:38:16.223449 18493 net.cpp:356] conv2 -> conv2
+I0113 23:38:16.223477 18493 net.cpp:96] Setting up conv2
+I0113 23:38:16.226307 18493 net.cpp:103] Top shape: 1000 50 8 8 (3200000)
+I0113 23:38:16.226330 18493 net.cpp:113] Memory required for data: 73548000
+I0113 23:38:16.226390 18493 net.cpp:67] Creating Layer pool2
+I0113 23:38:16.226419 18493 net.cpp:394] pool2 <- conv2
+I0113 23:38:16.226457 18493 net.cpp:356] pool2 -> pool2
+I0113 23:38:16.226490 18493 net.cpp:96] Setting up pool2
+I0113 23:38:16.226518 18493 net.cpp:103] Top shape: 1000 50 4 4 (800000)
+I0113 23:38:16.226546 18493 net.cpp:113] Memory required for data: 76748000
+I0113 23:38:16.226565 18493 net.cpp:67] Creating Layer ip1
+I0113 23:38:16.226584 18493 net.cpp:394] ip1 <- pool2
+I0113 23:38:16.226613 18493 net.cpp:356] ip1 -> ip1
+I0113 23:38:16.226645 18493 net.cpp:96] Setting up ip1
+I0113 23:38:16.271944 18493 net.cpp:103] Top shape: 1000 500 1 1 (500000)
+I0113 23:38:16.271975 18493 net.cpp:113] Memory required for data: 78748000
+I0113 23:38:16.272011 18493 net.cpp:67] Creating Layer relu1
+I0113 23:38:16.272030 18493 net.cpp:394] relu1 <- ip1
+I0113 23:38:16.272097 18493 net.cpp:345] relu1 -> ip1 (in-place)
+I0113 23:38:16.272135 18493 net.cpp:96] Setting up relu1
+I0113 23:38:16.272155 18493 net.cpp:103] Top shape: 1000 500 1 1 (500000)
+I0113 23:38:16.272181 18493 net.cpp:113] Memory required for data: 80748000
+I0113 23:38:16.272208 18493 net.cpp:67] Creating Layer ip2
+I0113 23:38:16.272236 18493 net.cpp:394] ip2 <- ip1
+I0113 23:38:16.272260 18493 net.cpp:356] ip2 -> ip2
+I0113 23:38:16.272294 18493 net.cpp:96] Setting up ip2
+I0113 23:38:16.272913 18493 net.cpp:103] Top shape: 1000 10 1 1 (10000)
+I0113 23:38:16.272935 18493 net.cpp:113] Memory required for data: 80788000
+I0113 23:38:16.272964 18493 net.cpp:67] Creating Layer ip2_ip2_0_split
+I0113 23:38:16.272986 18493 net.cpp:394] ip2_ip2_0_split <- ip2
+I0113 23:38:16.273013 18493 net.cpp:356] ip2_ip2_0_split -> ip2_ip2_0_split_0
+I0113 23:38:16.273042 18493 net.cpp:356] ip2_ip2_0_split -> ip2_ip2_0_split_1
+I0113 23:38:16.273071 18493 net.cpp:96] Setting up ip2_ip2_0_split
+I0113 23:38:16.273092 18493 net.cpp:103] Top shape: 1000 10 1 1 (10000)
+I0113 23:38:16.273109 18493 net.cpp:103] Top shape: 1000 10 1 1 (10000)
+I0113 23:38:16.273138 18493 net.cpp:113] Memory required for data: 80868000
+I0113 23:38:16.273161 18493 net.cpp:67] Creating Layer classification_stats
+I0113 23:38:16.273179 18493 net.cpp:394] classification_stats <- ip2_ip2_0_split_0
+I0113 23:38:16.273213 18493 net.cpp:394] classification_stats <- label_mnist_1_split_0
+I0113 23:38:16.273236 18493 net.cpp:356] classification_stats -> accuracy_per_class
+I0113 23:38:16.273264 18493 net.cpp:356] classification_stats -> average_precision_per_class
+I0113 23:38:16.273294 18493 net.cpp:356] classification_stats -> average_accuracy
+I0113 23:38:16.273322 18493 net.cpp:96] Setting up classification_stats
+I0113 23:38:16.273344 18493 net.cpp:103] Top shape: 1 10 1 1 (10)
+I0113 23:38:16.273363 18493 net.cpp:103] Top shape: 1 10 1 1 (10)
+I0113 23:38:16.273376 18493 net.cpp:103] Top shape: 1 1 1 1 (1)
+I0113 23:38:16.273390 18493 net.cpp:113] Memory required for data: 80868084
+I0113 23:38:16.273416 18493 net.cpp:67] Creating Layer loss
+I0113 23:38:16.273437 18493 net.cpp:394] loss <- ip2_ip2_0_split_1
+I0113 23:38:16.273458 18493 net.cpp:394] loss <- label_mnist_1_split_1
+I0113 23:38:16.273481 18493 net.cpp:356] loss -> loss
+I0113 23:38:16.273507 18493 net.cpp:96] Setting up loss
+I0113 23:38:16.273535 18493 net.cpp:103] Top shape: 1 1 1 1 (1)
+I0113 23:38:16.273552 18493 net.cpp:109]     with loss weight 1
+I0113 23:38:16.273574 18493 net.cpp:113] Memory required for data: 80868088
+I0113 23:38:16.273591 18493 net.cpp:170] loss needs backward computation.
+I0113 23:38:16.273607 18493 net.cpp:172] classification_stats does not need backward computation.
+I0113 23:38:16.273620 18493 net.cpp:170] ip2_ip2_0_split needs backward computation.
+I0113 23:38:16.273633 18493 net.cpp:170] ip2 needs backward computation.
+I0113 23:38:16.273671 18493 net.cpp:170] relu1 needs backward computation.
+I0113 23:38:16.273689 18493 net.cpp:170] ip1 needs backward computation.
+I0113 23:38:16.273706 18493 net.cpp:170] pool2 needs backward computation.
+I0113 23:38:16.273723 18493 net.cpp:170] conv2 needs backward computation.
+I0113 23:38:16.273737 18493 net.cpp:170] pool1 needs backward computation.
+I0113 23:38:16.273753 18493 net.cpp:170] conv1 needs backward computation.
+I0113 23:38:16.273767 18493 net.cpp:172] label_mnist_1_split does not need backward computation.
+I0113 23:38:16.273783 18493 net.cpp:172] mnist does not need backward computation.
+I0113 23:38:16.273797 18493 net.cpp:208] This network produces output accuracy_per_class
+I0113 23:38:16.273814 18493 net.cpp:208] This network produces output average_accuracy
+I0113 23:38:16.273833 18493 net.cpp:208] This network produces output average_precision_per_class
+I0113 23:38:16.273852 18493 net.cpp:208] This network produces output loss
+I0113 23:38:16.273891 18493 net.cpp:467] Collecting Learning Rate and Weight Decay.
+I0113 23:38:16.273916 18493 net.cpp:219] Network initialization done.
+I0113 23:38:16.273931 18493 net.cpp:220] Memory required for data: 80868088
+I0113 23:38:16.273998 18493 solver.cpp:43] Solver scaffolding done.
+I0113 23:38:16.274016 18493 solver.cpp:162] Solving LeNet
+I0113 23:38:16.274072 18493 solver.cpp:253] Iteration 0, Testing net (#0)
+I0113 23:38:16.274093 18493 net.cpp:652] Copying source layer mnist
+I0113 23:38:16.274113 18493 net.cpp:652] Copying source layer conv1
+I0113 23:38:16.274130 18493 net.cpp:652] Copying source layer pool1
+I0113 23:38:16.274144 18493 net.cpp:652] Copying source layer conv2
+I0113 23:38:16.274159 18493 net.cpp:652] Copying source layer pool2
+I0113 23:38:16.274176 18493 net.cpp:652] Copying source layer ip1
+I0113 23:38:16.274193 18493 net.cpp:652] Copying source layer relu1
+I0113 23:38:16.274206 18493 net.cpp:652] Copying source layer ip2
+I0113 23:38:16.274221 18493 net.cpp:652] Copying source layer loss
+I0113 23:38:16.274238 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:38:16.501205 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0
+I0113 23:38:16.501277 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0
+I0113 23:38:16.501294 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0
+I0113 23:38:16.501310 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0
+I0113 23:38:16.501324 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0
+I0113 23:38:16.501399 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.0229885
+I0113 23:38:16.501417 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.0689655
+I0113 23:38:16.501431 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.919192
+I0113 23:38:16.501446 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.0674157
+I0113 23:38:16.501459 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0
+I0113 23:38:16.501487 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.105
+I0113 23:38:16.501513 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.00177768
+I0113 23:38:16.501528 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.000422866
+I0113 23:38:16.501543 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.127723
+I0113 23:38:16.501561 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.0541723
+I0113 23:38:16.501587 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.00356404
+I0113 23:38:16.501602 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.0882494
+I0113 23:38:16.501618 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.0921012
+I0113 23:38:16.501634 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.123298
+I0113 23:38:16.501649 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.107971
+I0113 23:38:16.501705 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.00212766
+I0113 23:38:16.501739 18493 solver.cpp:313]     Test net output #21: loss = 2.30262 (* 1 = 2.30262 loss)
+I0113 23:38:16.558377 18493 solver.cpp:196] Iteration 0, loss = 2.30347
+I0113 23:38:16.558455 18493 solver.cpp:211]     Train net output #0: loss = iter = 0 value = 2.30347 (* 1 = 2.30347 loss)
+I0113 23:38:16.558539 18493 solver.cpp:493] Iteration 0, lr = 0.01
+I0113 23:38:19.475755 18493 solver.cpp:196] Iteration 100, loss = 0.355498
+I0113 23:38:19.475824 18493 solver.cpp:211]     Train net output #0: loss = iter = 100 value = 0.355498 (* 1 = 0.355498 loss)
+I0113 23:38:19.475843 18493 solver.cpp:493] Iteration 100, lr = 0.00992565
+I0113 23:38:22.388350 18493 solver.cpp:196] Iteration 200, loss = 0.155331
+I0113 23:38:22.388417 18493 solver.cpp:211]     Train net output #0: loss = iter = 200 value = 0.155331 (* 1 = 0.155331 loss)
+I0113 23:38:22.388478 18493 solver.cpp:493] Iteration 200, lr = 0.00985258
+I0113 23:38:25.301096 18493 solver.cpp:196] Iteration 300, loss = 0.203126
+I0113 23:38:25.301189 18493 solver.cpp:211]     Train net output #0: loss = iter = 300 value = 0.203126 (* 1 = 0.203126 loss)
+I0113 23:38:25.301209 18493 solver.cpp:493] Iteration 300, lr = 0.00978075
+I0113 23:38:28.214054 18493 solver.cpp:196] Iteration 400, loss = 0.104916
+I0113 23:38:28.214118 18493 solver.cpp:211]     Train net output #0: loss = iter = 400 value = 0.104916 (* 1 = 0.104916 loss)
+I0113 23:38:28.214154 18493 solver.cpp:493] Iteration 400, lr = 0.00971013
+I0113 23:38:31.098539 18493 solver.cpp:253] Iteration 500, Testing net (#0)
+I0113 23:38:31.098582 18493 net.cpp:652] Copying source layer mnist
+I0113 23:38:31.098598 18493 net.cpp:652] Copying source layer conv1
+I0113 23:38:31.098613 18493 net.cpp:652] Copying source layer pool1
+I0113 23:38:31.098669 18493 net.cpp:652] Copying source layer conv2
+I0113 23:38:31.098682 18493 net.cpp:652] Copying source layer pool2
+I0113 23:38:31.098695 18493 net.cpp:652] Copying source layer ip1
+I0113 23:38:31.098706 18493 net.cpp:652] Copying source layer relu1
+I0113 23:38:31.098742 18493 net.cpp:652] Copying source layer ip2
+I0113 23:38:31.098755 18493 net.cpp:652] Copying source layer loss
+I0113 23:38:31.098778 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:38:31.292820 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0.966667
+I0113 23:38:31.292881 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.990741
+I0113 23:38:31.292896 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.941748
+I0113 23:38:31.292912 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.88
+I0113 23:38:31.292927 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.943925
+I0113 23:38:31.292942 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.967391
+I0113 23:38:31.292955 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.967033
+I0113 23:38:31.292984 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.858491
+I0113 23:38:31.293071 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.961165
+I0113 23:38:31.293087 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.92
+I0113 23:38:31.293102 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.939
+I0113 23:38:31.293133 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.994738
+I0113 23:38:31.293164 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.95869
+I0113 23:38:31.293186 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.939399
+I0113 23:38:31.293206 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.945707
+I0113 23:38:31.293221 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.965472
+I0113 23:38:31.293236 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.973708
+I0113 23:38:31.293283 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.976278
+I0113 23:38:31.293342 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.915891
+I0113 23:38:31.293359 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.927175
+I0113 23:38:31.293372 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.914593
+I0113 23:38:31.293391 18493 solver.cpp:313]     Test net output #21: loss = 0.168469 (* 1 = 0.168469 loss)
+I0113 23:38:31.308215 18493 solver.cpp:196] Iteration 500, loss = 0.103315
+I0113 23:38:31.308251 18493 solver.cpp:211]     Train net output #0: loss = iter = 500 value = 0.103315 (* 1 = 0.103315 loss)
+I0113 23:38:31.308310 18493 solver.cpp:493] Iteration 500, lr = 0.00964069
+I0113 23:38:34.221765 18493 solver.cpp:196] Iteration 600, loss = 0.106722
+I0113 23:38:34.221830 18493 solver.cpp:211]     Train net output #0: loss = iter = 600 value = 0.106722 (* 1 = 0.106722 loss)
+I0113 23:38:34.221849 18493 solver.cpp:493] Iteration 600, lr = 0.0095724
+I0113 23:38:37.134205 18493 solver.cpp:196] Iteration 700, loss = 0.128976
+I0113 23:38:37.134274 18493 solver.cpp:211]     Train net output #0: loss = iter = 700 value = 0.128976 (* 1 = 0.128976 loss)
+I0113 23:38:37.134291 18493 solver.cpp:493] Iteration 700, lr = 0.00950522
+I0113 23:38:40.047348 18493 solver.cpp:196] Iteration 800, loss = 0.236823
+I0113 23:38:40.047417 18493 solver.cpp:211]     Train net output #0: loss = iter = 800 value = 0.236823 (* 1 = 0.236823 loss)
+I0113 23:38:40.047435 18493 solver.cpp:493] Iteration 800, lr = 0.00943913
+I0113 23:38:42.958657 18493 solver.cpp:196] Iteration 900, loss = 0.173418
+I0113 23:38:42.958720 18493 solver.cpp:211]     Train net output #0: loss = iter = 900 value = 0.173418 (* 1 = 0.173418 loss)
+I0113 23:38:42.958739 18493 solver.cpp:493] Iteration 900, lr = 0.00937411
+I0113 23:38:43.993036 19541 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:38:45.843596 18493 solver.cpp:253] Iteration 1000, Testing net (#0)
+I0113 23:38:45.843711 18493 net.cpp:652] Copying source layer mnist
+I0113 23:38:45.843730 18493 net.cpp:652] Copying source layer conv1
+I0113 23:38:45.843750 18493 net.cpp:652] Copying source layer pool1
+I0113 23:38:45.843762 18493 net.cpp:652] Copying source layer conv2
+I0113 23:38:45.843775 18493 net.cpp:652] Copying source layer pool2
+I0113 23:38:45.843787 18493 net.cpp:652] Copying source layer ip1
+I0113 23:38:45.843801 18493 net.cpp:652] Copying source layer relu1
+I0113 23:38:45.843816 18493 net.cpp:652] Copying source layer ip2
+I0113 23:38:45.843828 18493 net.cpp:652] Copying source layer loss
+I0113 23:38:45.843842 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:38:46.037574 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:38:46.037623 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.990566
+I0113 23:38:46.037642 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.925532
+I0113 23:38:46.037711 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.954128
+I0113 23:38:46.037726 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.950495
+I0113 23:38:46.037741 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.971154
+I0113 23:38:46.037755 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.957447
+I0113 23:38:46.037780 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.960396
+I0113 23:38:46.037794 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.989362
+I0113 23:38:46.037808 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.980198
+I0113 23:38:46.037822 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.968
+I0113 23:38:46.037847 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.987501
+I0113 23:38:46.037863 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.971681
+I0113 23:38:46.037879 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.989432
+I0113 23:38:46.037894 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.952362
+I0113 23:38:46.037917 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.994371
+I0113 23:38:46.037933 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.951296
+I0113 23:38:46.037947 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.986151
+I0113 23:38:46.037973 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.978931
+I0113 23:38:46.037987 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.961959
+I0113 23:38:46.038014 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.92046
+I0113 23:38:46.038038 18493 solver.cpp:313]     Test net output #21: loss = 0.0946117 (* 1 = 0.0946117 loss)
+I0113 23:38:46.052902 18493 solver.cpp:196] Iteration 1000, loss = 0.118087
+I0113 23:38:46.052940 18493 solver.cpp:211]     Train net output #0: loss = iter = 1000 value = 0.118087 (* 1 = 0.118087 loss)
+I0113 23:38:46.052986 18493 solver.cpp:493] Iteration 1000, lr = 0.00931012
+I0113 23:38:48.965493 18493 solver.cpp:196] Iteration 1100, loss = 0.0102828
+I0113 23:38:48.965556 18493 solver.cpp:211]     Train net output #0: loss = iter = 1100 value = 0.0102828 (* 1 = 0.0102828 loss)
+I0113 23:38:48.965576 18493 solver.cpp:493] Iteration 1100, lr = 0.00924715
+I0113 23:38:51.878075 18493 solver.cpp:196] Iteration 1200, loss = 0.017595
+I0113 23:38:51.878139 18493 solver.cpp:211]     Train net output #0: loss = iter = 1200 value = 0.017595 (* 1 = 0.017595 loss)
+I0113 23:38:51.878156 18493 solver.cpp:493] Iteration 1200, lr = 0.00918515
+I0113 23:38:54.790318 18493 solver.cpp:196] Iteration 1300, loss = 0.0223543
+I0113 23:38:54.790398 18493 solver.cpp:211]     Train net output #0: loss = iter = 1300 value = 0.0223543 (* 1 = 0.0223543 loss)
+I0113 23:38:54.790418 18493 solver.cpp:493] Iteration 1300, lr = 0.00912412
+I0113 23:38:57.701690 18493 solver.cpp:196] Iteration 1400, loss = 0.00768079
+I0113 23:38:57.701792 18493 solver.cpp:211]     Train net output #0: loss = iter = 1400 value = 0.00768079 (* 1 = 0.00768079 loss)
+I0113 23:38:57.701814 18493 solver.cpp:493] Iteration 1400, lr = 0.00906403
+I0113 23:39:00.585626 18493 solver.cpp:253] Iteration 1500, Testing net (#0)
+I0113 23:39:00.585680 18493 net.cpp:652] Copying source layer mnist
+I0113 23:39:00.585695 18493 net.cpp:652] Copying source layer conv1
+I0113 23:39:00.585711 18493 net.cpp:652] Copying source layer pool1
+I0113 23:39:00.585829 18493 net.cpp:652] Copying source layer conv2
+I0113 23:39:00.585844 18493 net.cpp:652] Copying source layer pool2
+I0113 23:39:00.585857 18493 net.cpp:652] Copying source layer ip1
+I0113 23:39:00.585883 18493 net.cpp:652] Copying source layer relu1
+I0113 23:39:00.585898 18493 net.cpp:652] Copying source layer ip2
+I0113 23:39:00.585912 18493 net.cpp:652] Copying source layer loss
+I0113 23:39:00.585925 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:39:00.780122 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:39:00.780169 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.990909
+I0113 23:39:00.780186 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.980952
+I0113 23:39:00.780203 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.978261
+I0113 23:39:00.780266 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 1
+I0113 23:39:00.780282 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.988764
+I0113 23:39:00.780313 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.971698
+I0113 23:39:00.780328 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.980952
+I0113 23:39:00.780342 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.959184
+I0113 23:39:00.780369 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.9375
+I0113 23:39:00.780396 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.979
+I0113 23:39:00.780424 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.995455
+I0113 23:39:00.780449 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.966052
+I0113 23:39:00.780483 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.986142
+I0113 23:39:00.780498 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.98281
+I0113 23:39:00.780526 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.987771
+I0113 23:39:00.780544 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.973468
+I0113 23:39:00.780560 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.991488
+I0113 23:39:00.780578 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.972022
+I0113 23:39:00.780593 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.969391
+I0113 23:39:00.780609 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.957315
+I0113 23:39:00.780633 18493 solver.cpp:313]     Test net output #21: loss = 0.0723869 (* 1 = 0.0723869 loss)
+I0113 23:39:00.795790 18493 solver.cpp:196] Iteration 1500, loss = 0.0924126
+I0113 23:39:00.795840 18493 solver.cpp:211]     Train net output #0: loss = iter = 1500 value = 0.0924126 (* 1 = 0.0924126 loss)
+I0113 23:39:00.795866 18493 solver.cpp:493] Iteration 1500, lr = 0.00900485
+I0113 23:39:03.707847 18493 solver.cpp:196] Iteration 1600, loss = 0.104129
+I0113 23:39:03.707926 18493 solver.cpp:211]     Train net output #0: loss = iter = 1600 value = 0.104129 (* 1 = 0.104129 loss)
+I0113 23:39:03.707947 18493 solver.cpp:493] Iteration 1600, lr = 0.00894657
+I0113 23:39:06.620343 18493 solver.cpp:196] Iteration 1700, loss = 0.0383544
+I0113 23:39:06.620421 18493 solver.cpp:211]     Train net output #0: loss = iter = 1700 value = 0.0383544 (* 1 = 0.0383544 loss)
+I0113 23:39:06.620440 18493 solver.cpp:493] Iteration 1700, lr = 0.00888916
+I0113 23:39:09.533300 18493 solver.cpp:196] Iteration 1800, loss = 0.0255596
+I0113 23:39:09.533404 18493 solver.cpp:211]     Train net output #0: loss = iter = 1800 value = 0.0255596 (* 1 = 0.0255596 loss)
+I0113 23:39:09.533432 18493 solver.cpp:493] Iteration 1800, lr = 0.0088326
+I0113 23:39:11.644685 20590 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:39:12.445184 18493 solver.cpp:196] Iteration 1900, loss = 0.123713
+I0113 23:39:12.445251 18493 solver.cpp:211]     Train net output #0: loss = iter = 1900 value = 0.123713 (* 1 = 0.123713 loss)
+I0113 23:39:12.445271 18493 solver.cpp:493] Iteration 1900, lr = 0.00877687
+I0113 23:39:15.334141 18493 solver.cpp:253] Iteration 2000, Testing net (#0)
+I0113 23:39:15.334203 18493 net.cpp:652] Copying source layer mnist
+I0113 23:39:15.334221 18493 net.cpp:652] Copying source layer conv1
+I0113 23:39:15.334239 18493 net.cpp:652] Copying source layer pool1
+I0113 23:39:15.334251 18493 net.cpp:652] Copying source layer conv2
+I0113 23:39:15.334265 18493 net.cpp:652] Copying source layer pool2
+I0113 23:39:15.334278 18493 net.cpp:652] Copying source layer ip1
+I0113 23:39:15.334292 18493 net.cpp:652] Copying source layer relu1
+I0113 23:39:15.334305 18493 net.cpp:652] Copying source layer ip2
+I0113 23:39:15.334332 18493 net.cpp:652] Copying source layer loss
+I0113 23:39:15.334399 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:39:15.529119 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0.966667
+I0113 23:39:15.529186 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:39:15.529203 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.982143
+I0113 23:39:15.529218 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 1
+I0113 23:39:15.529232 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 1
+I0113 23:39:15.529309 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.988095
+I0113 23:39:15.529322 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.964286
+I0113 23:39:15.529337 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.950495
+I0113 23:39:15.529372 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.980952
+I0113 23:39:15.529388 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.953488
+I0113 23:39:15.529410 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.978
+I0113 23:39:15.529445 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.99478
+I0113 23:39:15.529466 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.975141
+I0113 23:39:15.529500 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.98542
+I0113 23:39:15.529518 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.977233
+I0113 23:39:15.529536 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.989451
+I0113 23:39:15.529551 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.965798
+I0113 23:39:15.529568 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.992918
+I0113 23:39:15.529587 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.981133
+I0113 23:39:15.529615 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.96598
+I0113 23:39:15.529633 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.961249
+I0113 23:39:15.529666 18493 solver.cpp:313]     Test net output #21: loss = 0.0600025 (* 1 = 0.0600025 loss)
+I0113 23:39:15.544783 18493 solver.cpp:196] Iteration 2000, loss = 0.0263821
+I0113 23:39:15.544841 18493 solver.cpp:211]     Train net output #0: loss = iter = 2000 value = 0.0263821 (* 1 = 0.0263821 loss)
+I0113 23:39:15.544881 18493 solver.cpp:493] Iteration 2000, lr = 0.00872196
+I0113 23:39:18.459697 18493 solver.cpp:196] Iteration 2100, loss = 0.0151366
+I0113 23:39:18.524251 18493 solver.cpp:211]     Train net output #0: loss = iter = 2100 value = 0.0151366 (* 1 = 0.0151366 loss)
+I0113 23:39:18.524296 18493 solver.cpp:493] Iteration 2100, lr = 0.00866784
+I0113 23:39:21.424098 18493 solver.cpp:196] Iteration 2200, loss = 0.0355892
+I0113 23:39:21.424172 18493 solver.cpp:211]     Train net output #0: loss = iter = 2200 value = 0.0355892 (* 1 = 0.0355892 loss)
+I0113 23:39:21.424218 18493 solver.cpp:493] Iteration 2200, lr = 0.0086145
+I0113 23:39:24.336944 18493 solver.cpp:196] Iteration 2300, loss = 0.115606
+I0113 23:39:24.337023 18493 solver.cpp:211]     Train net output #0: loss = iter = 2300 value = 0.115606 (* 1 = 0.115606 loss)
+I0113 23:39:24.337101 18493 solver.cpp:493] Iteration 2300, lr = 0.00856192
+I0113 23:39:27.253330 18493 solver.cpp:196] Iteration 2400, loss = 0.0196304
+I0113 23:39:27.253388 18493 solver.cpp:211]     Train net output #0: loss = iter = 2400 value = 0.0196304 (* 1 = 0.0196304 loss)
+I0113 23:39:27.253407 18493 solver.cpp:493] Iteration 2400, lr = 0.00851008
+I0113 23:39:30.136642 18493 solver.cpp:253] Iteration 2500, Testing net (#0)
+I0113 23:39:30.136705 18493 net.cpp:652] Copying source layer mnist
+I0113 23:39:30.136786 18493 net.cpp:652] Copying source layer conv1
+I0113 23:39:30.136813 18493 net.cpp:652] Copying source layer pool1
+I0113 23:39:30.136827 18493 net.cpp:652] Copying source layer conv2
+I0113 23:39:30.136845 18493 net.cpp:652] Copying source layer pool2
+I0113 23:39:30.136888 18493 net.cpp:652] Copying source layer ip1
+I0113 23:39:30.136911 18493 net.cpp:652] Copying source layer relu1
+I0113 23:39:30.136945 18493 net.cpp:652] Copying source layer ip2
+I0113 23:39:30.136970 18493 net.cpp:652] Copying source layer loss
+I0113 23:39:30.137006 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:39:30.331893 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:39:30.331943 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:39:30.331959 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 1
+I0113 23:39:30.332020 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.989474
+I0113 23:39:30.332036 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.979798
+I0113 23:39:30.332049 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.934783
+I0113 23:39:30.332064 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.99
+I0113 23:39:30.332088 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.979381
+I0113 23:39:30.332109 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 1
+I0113 23:39:30.332131 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 1
+I0113 23:39:30.332154 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.988
+I0113 23:39:30.332173 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.999567
+I0113 23:39:30.332190 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.99748
+I0113 23:39:30.332207 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 1
+I0113 23:39:30.332224 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.975926
+I0113 23:39:30.332240 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.993102
+I0113 23:39:30.332255 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.997671
+I0113 23:39:30.332272 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.998571
+I0113 23:39:30.332288 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.983141
+I0113 23:39:30.332306 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.988659
+I0113 23:39:30.332322 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.993428
+I0113 23:39:30.332342 18493 solver.cpp:313]     Test net output #21: loss = 0.0445854 (* 1 = 0.0445854 loss)
+I0113 23:39:30.347420 18493 solver.cpp:196] Iteration 2500, loss = 0.0449515
+I0113 23:39:30.347476 18493 solver.cpp:211]     Train net output #0: loss = iter = 2500 value = 0.0449515 (* 1 = 0.0449515 loss)
+I0113 23:39:30.347558 18493 solver.cpp:493] Iteration 2500, lr = 0.00845897
+I0113 23:39:33.262790 18493 solver.cpp:196] Iteration 2600, loss = 0.0639812
+I0113 23:39:33.262866 18493 solver.cpp:211]     Train net output #0: loss = iter = 2600 value = 0.0639812 (* 1 = 0.0639812 loss)
+I0113 23:39:33.262887 18493 solver.cpp:493] Iteration 2600, lr = 0.00840857
+I0113 23:39:36.202384 18493 solver.cpp:196] Iteration 2700, loss = 0.108354
+I0113 23:39:36.202461 18493 solver.cpp:211]     Train net output #0: loss = iter = 2700 value = 0.108354 (* 1 = 0.108354 loss)
+I0113 23:39:36.202481 18493 solver.cpp:493] Iteration 2700, lr = 0.00835886
+I0113 23:39:39.116081 18493 solver.cpp:196] Iteration 2800, loss = 0.00341043
+I0113 23:39:39.116153 18493 solver.cpp:211]     Train net output #0: loss = iter = 2800 value = 0.00341043 (* 1 = 0.00341043 loss)
+I0113 23:39:39.116173 18493 solver.cpp:493] Iteration 2800, lr = 0.00830984
+I0113 23:39:39.422502 21635 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:39:42.031267 18493 solver.cpp:196] Iteration 2900, loss = 0.0367279
+I0113 23:39:42.031332 18493 solver.cpp:211]     Train net output #0: loss = iter = 2900 value = 0.0367279 (* 1 = 0.0367279 loss)
+I0113 23:39:42.031376 18493 solver.cpp:493] Iteration 2900, lr = 0.00826148
+I0113 23:39:44.915501 18493 solver.cpp:253] Iteration 3000, Testing net (#0)
+I0113 23:39:44.915549 18493 net.cpp:652] Copying source layer mnist
+I0113 23:39:44.915566 18493 net.cpp:652] Copying source layer conv1
+I0113 23:39:44.915608 18493 net.cpp:652] Copying source layer pool1
+I0113 23:39:44.915621 18493 net.cpp:652] Copying source layer conv2
+I0113 23:39:44.915635 18493 net.cpp:652] Copying source layer pool2
+I0113 23:39:44.915647 18493 net.cpp:652] Copying source layer ip1
+I0113 23:39:44.915660 18493 net.cpp:652] Copying source layer relu1
+I0113 23:39:44.915685 18493 net.cpp:652] Copying source layer ip2
+I0113 23:39:44.915709 18493 net.cpp:652] Copying source layer loss
+I0113 23:39:44.915729 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:39:45.110070 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0.980769
+I0113 23:39:45.110117 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.990826
+I0113 23:39:45.110134 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 1
+I0113 23:39:45.110149 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 1
+I0113 23:39:45.110163 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 1
+I0113 23:39:45.110208 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 1
+I0113 23:39:45.110221 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 1
+I0113 23:39:45.110236 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.990291
+I0113 23:39:45.110258 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.989474
+I0113 23:39:45.110280 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.979592
+I0113 23:39:45.110301 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.993
+I0113 23:39:45.110321 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.994918
+I0113 23:39:45.110343 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.990011
+I0113 23:39:45.110359 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.999819
+I0113 23:39:45.110376 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.982871
+I0113 23:39:45.110393 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.99901
+I0113 23:39:45.110409 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.998966
+I0113 23:39:45.110427 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.999039
+I0113 23:39:45.110445 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.994265
+I0113 23:39:45.110458 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.986418
+I0113 23:39:45.110517 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.979083
+I0113 23:39:45.110540 18493 solver.cpp:313]     Test net output #21: loss = 0.0283332 (* 1 = 0.0283332 loss)
+I0113 23:39:45.125581 18493 solver.cpp:196] Iteration 3000, loss = 0.0186863
+I0113 23:39:45.125637 18493 solver.cpp:211]     Train net output #0: loss = iter = 3000 value = 0.0186863 (* 1 = 0.0186863 loss)
+I0113 23:39:45.125663 18493 solver.cpp:493] Iteration 3000, lr = 0.00821377
+I0113 23:39:48.040283 18493 solver.cpp:196] Iteration 3100, loss = 0.0385931
+I0113 23:39:48.040369 18493 solver.cpp:211]     Train net output #0: loss = iter = 3100 value = 0.0385931 (* 1 = 0.0385931 loss)
+I0113 23:39:48.040388 18493 solver.cpp:493] Iteration 3100, lr = 0.0081667
+I0113 23:39:50.953487 18493 solver.cpp:196] Iteration 3200, loss = 0.0098322
+I0113 23:39:51.057487 18493 solver.cpp:211]     Train net output #0: loss = iter = 3200 value = 0.0098322 (* 1 = 0.0098322 loss)
+I0113 23:39:51.057514 18493 solver.cpp:493] Iteration 3200, lr = 0.00812025
+I0113 23:39:53.958039 18493 solver.cpp:196] Iteration 3300, loss = 0.019684
+I0113 23:39:53.958107 18493 solver.cpp:211]     Train net output #0: loss = iter = 3300 value = 0.019684 (* 1 = 0.019684 loss)
+I0113 23:39:53.958165 18493 solver.cpp:493] Iteration 3300, lr = 0.00807442
+I0113 23:39:56.876816 18493 solver.cpp:196] Iteration 3400, loss = 0.0110204
+I0113 23:39:56.876888 18493 solver.cpp:211]     Train net output #0: loss = iter = 3400 value = 0.0110204 (* 1 = 0.0110204 loss)
+I0113 23:39:56.876906 18493 solver.cpp:493] Iteration 3400, lr = 0.00802918
+I0113 23:39:59.760622 18493 solver.cpp:253] Iteration 3500, Testing net (#0)
+I0113 23:39:59.760682 18493 net.cpp:652] Copying source layer mnist
+I0113 23:39:59.760700 18493 net.cpp:652] Copying source layer conv1
+I0113 23:39:59.760716 18493 net.cpp:652] Copying source layer pool1
+I0113 23:39:59.760730 18493 net.cpp:652] Copying source layer conv2
+I0113 23:39:59.760743 18493 net.cpp:652] Copying source layer pool2
+I0113 23:39:59.760757 18493 net.cpp:652] Copying source layer ip1
+I0113 23:39:59.760771 18493 net.cpp:652] Copying source layer relu1
+I0113 23:39:59.760782 18493 net.cpp:652] Copying source layer ip2
+I0113 23:39:59.760797 18493 net.cpp:652] Copying source layer loss
+I0113 23:39:59.760845 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:39:59.955310 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:39:59.955373 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.945455
+I0113 23:39:59.955389 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 1
+I0113 23:39:59.955404 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 1
+I0113 23:39:59.955417 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.988636
+I0113 23:39:59.955430 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 1
+I0113 23:39:59.955524 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 1
+I0113 23:39:59.955539 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 1
+I0113 23:39:59.955554 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.990476
+I0113 23:39:59.955587 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 1
+I0113 23:39:59.955608 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.992
+I0113 23:39:59.955623 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.999903
+I0113 23:39:59.955658 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.984703
+I0113 23:39:59.955683 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.999023
+I0113 23:39:59.955713 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.998383
+I0113 23:39:59.955730 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.99506
+I0113 23:39:59.955747 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.995482
+I0113 23:39:59.955776 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 1
+I0113 23:39:59.955792 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.986796
+I0113 23:39:59.955808 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.992679
+I0113 23:39:59.955837 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 1
+I0113 23:39:59.955860 18493 solver.cpp:313]     Test net output #21: loss = 0.0245157 (* 1 = 0.0245157 loss)
+I0113 23:39:59.970952 18493 solver.cpp:196] Iteration 3500, loss = 0.00761994
+I0113 23:39:59.971009 18493 solver.cpp:211]     Train net output #0: loss = iter = 3500 value = 0.00761994 (* 1 = 0.00761994 loss)
+I0113 23:39:59.971035 18493 solver.cpp:493] Iteration 3500, lr = 0.00798454
+I0113 23:40:02.886137 18493 solver.cpp:196] Iteration 3600, loss = 0.040868
+I0113 23:40:02.886203 18493 solver.cpp:211]     Train net output #0: loss = iter = 3600 value = 0.040868 (* 1 = 0.040868 loss)
+I0113 23:40:02.886270 18493 solver.cpp:493] Iteration 3600, lr = 0.00794046
+I0113 23:40:05.803845 18493 solver.cpp:196] Iteration 3700, loss = 0.0294768
+I0113 23:40:05.803915 18493 solver.cpp:211]     Train net output #0: loss = iter = 3700 value = 0.0294768 (* 1 = 0.0294768 loss)
+I0113 23:40:05.803933 18493 solver.cpp:493] Iteration 3700, lr = 0.00789695
+I0113 23:40:07.187669 22675 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:40:08.716554 18493 solver.cpp:196] Iteration 3800, loss = 0.00946683
+I0113 23:40:08.716636 18493 solver.cpp:211]     Train net output #0: loss = iter = 3800 value = 0.00946683 (* 1 = 0.00946683 loss)
+I0113 23:40:08.716683 18493 solver.cpp:493] Iteration 3800, lr = 0.007854
+I0113 23:40:11.632123 18493 solver.cpp:196] Iteration 3900, loss = 0.0359544
+I0113 23:40:11.632205 18493 solver.cpp:211]     Train net output #0: loss = iter = 3900 value = 0.0359544 (* 1 = 0.0359544 loss)
+I0113 23:40:11.632256 18493 solver.cpp:493] Iteration 3900, lr = 0.00781158
+I0113 23:40:14.515681 18493 solver.cpp:253] Iteration 4000, Testing net (#0)
+I0113 23:40:14.515739 18493 net.cpp:652] Copying source layer mnist
+I0113 23:40:14.515786 18493 net.cpp:652] Copying source layer conv1
+I0113 23:40:14.515810 18493 net.cpp:652] Copying source layer pool1
+I0113 23:40:14.515822 18493 net.cpp:652] Copying source layer conv2
+I0113 23:40:14.515836 18493 net.cpp:652] Copying source layer pool2
+I0113 23:40:14.515849 18493 net.cpp:652] Copying source layer ip1
+I0113 23:40:14.515869 18493 net.cpp:652] Copying source layer relu1
+I0113 23:40:14.515882 18493 net.cpp:652] Copying source layer ip2
+I0113 23:40:14.515903 18493 net.cpp:652] Copying source layer loss
+I0113 23:40:14.515923 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:40:14.538952 22957 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:40:14.710351 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:40:14.710397 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:40:14.710413 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 1
+I0113 23:40:14.710429 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.990476
+I0113 23:40:14.710445 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.990196
+I0113 23:40:14.710489 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 1
+I0113 23:40:14.710503 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 1
+I0113 23:40:14.710527 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 1
+I0113 23:40:14.710549 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 1
+I0113 23:40:14.710569 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 1
+I0113 23:40:14.710590 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.998
+I0113 23:40:14.710611 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 1
+I0113 23:40:14.710628 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.998125
+I0113 23:40:14.710644 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.999309
+I0113 23:40:14.710660 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.996859
+I0113 23:40:14.710677 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.996438
+I0113 23:40:14.710695 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.998926
+I0113 23:40:14.710711 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.999901
+I0113 23:40:14.710728 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 1
+I0113 23:40:14.710746 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.992666
+I0113 23:40:14.710759 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.999606
+I0113 23:40:14.710782 18493 solver.cpp:313]     Test net output #21: loss = 0.00662461 (* 1 = 0.00662461 loss)
+I0113 23:40:14.725898 18493 solver.cpp:196] Iteration 4000, loss = 0.0215953
+I0113 23:40:14.725952 18493 solver.cpp:211]     Train net output #0: loss = iter = 4000 value = 0.0215953 (* 1 = 0.0215953 loss)
+I0113 23:40:14.725976 18493 solver.cpp:493] Iteration 4000, lr = 0.00776969
+I0113 23:40:17.641398 18493 solver.cpp:196] Iteration 4100, loss = 0.0352926
+I0113 23:40:17.641473 18493 solver.cpp:211]     Train net output #0: loss = iter = 4100 value = 0.0352926 (* 1 = 0.0352926 loss)
+I0113 23:40:17.641557 18493 solver.cpp:493] Iteration 4100, lr = 0.00772833
+I0113 23:40:20.554704 18493 solver.cpp:196] Iteration 4200, loss = 0.0145602
+I0113 23:40:20.554766 18493 solver.cpp:211]     Train net output #0: loss = iter = 4200 value = 0.0145602 (* 1 = 0.0145602 loss)
+I0113 23:40:20.554812 18493 solver.cpp:493] Iteration 4200, lr = 0.00768748
+I0113 23:40:23.467033 18493 solver.cpp:196] Iteration 4300, loss = 0.0616475
+I0113 23:40:23.525810 18493 solver.cpp:211]     Train net output #0: loss = iter = 4300 value = 0.0616475 (* 1 = 0.0616475 loss)
+I0113 23:40:23.525846 18493 solver.cpp:493] Iteration 4300, lr = 0.00764712
+I0113 23:40:26.431473 18493 solver.cpp:196] Iteration 4400, loss = 0.0408278
+I0113 23:40:26.431558 18493 solver.cpp:211]     Train net output #0: loss = iter = 4400 value = 0.0408278 (* 1 = 0.0408278 loss)
+I0113 23:40:26.431578 18493 solver.cpp:493] Iteration 4400, lr = 0.00760726
+I0113 23:40:29.314858 18493 solver.cpp:253] Iteration 4500, Testing net (#0)
+I0113 23:40:29.314916 18493 net.cpp:652] Copying source layer mnist
+I0113 23:40:29.314934 18493 net.cpp:652] Copying source layer conv1
+I0113 23:40:29.314951 18493 net.cpp:652] Copying source layer pool1
+I0113 23:40:29.314965 18493 net.cpp:652] Copying source layer conv2
+I0113 23:40:29.314978 18493 net.cpp:652] Copying source layer pool2
+I0113 23:40:29.314992 18493 net.cpp:652] Copying source layer ip1
+I0113 23:40:29.315006 18493 net.cpp:652] Copying source layer relu1
+I0113 23:40:29.315078 18493 net.cpp:652] Copying source layer ip2
+I0113 23:40:29.315105 18493 net.cpp:652] Copying source layer loss
+I0113 23:40:29.315127 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:40:29.509974 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0.990196
+I0113 23:40:29.510035 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.991597
+I0113 23:40:29.510051 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.959596
+I0113 23:40:29.510066 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 1
+I0113 23:40:29.510081 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 1
+I0113 23:40:29.510094 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.952941
+I0113 23:40:29.510108 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 1
+I0113 23:40:29.510123 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 1
+I0113 23:40:29.510220 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 1
+I0113 23:40:29.510234 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 1
+I0113 23:40:29.510268 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.99
+I0113 23:40:29.510292 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.997964
+I0113 23:40:29.510325 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.991642
+I0113 23:40:29.510347 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.984979
+I0113 23:40:29.510368 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.993313
+I0113 23:40:29.510398 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.989496
+I0113 23:40:29.510413 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.991107
+I0113 23:40:29.510432 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.996157
+I0113 23:40:29.510459 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.994771
+I0113 23:40:29.510476 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.99966
+I0113 23:40:29.510493 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.989136
+I0113 23:40:29.510530 18493 solver.cpp:313]     Test net output #21: loss = 0.0344489 (* 1 = 0.0344489 loss)
+I0113 23:40:29.525693 18493 solver.cpp:196] Iteration 4500, loss = 0.00718561
+I0113 23:40:29.525748 18493 solver.cpp:211]     Train net output #0: loss = iter = 4500 value = 0.00718561 (* 1 = 0.00718561 loss)
+I0113 23:40:29.525787 18493 solver.cpp:493] Iteration 4500, lr = 0.00756788
+I0113 23:40:32.440212 18493 solver.cpp:196] Iteration 4600, loss = 0.0112412
+I0113 23:40:32.440294 18493 solver.cpp:211]     Train net output #0: loss = iter = 4600 value = 0.0112412 (* 1 = 0.0112412 loss)
+I0113 23:40:32.440376 18493 solver.cpp:493] Iteration 4600, lr = 0.00752897
+I0113 23:40:34.930644 23730 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:40:35.352902 18493 solver.cpp:196] Iteration 4700, loss = 0.0109328
+I0113 23:40:35.352957 18493 solver.cpp:211]     Train net output #0: loss = iter = 4700 value = 0.0109328 (* 1 = 0.0109328 loss)
+I0113 23:40:35.352977 18493 solver.cpp:493] Iteration 4700, lr = 0.00749052
+I0113 23:40:38.270184 18493 solver.cpp:196] Iteration 4800, loss = 0.0179804
+I0113 23:40:38.270259 18493 solver.cpp:211]     Train net output #0: loss = iter = 4800 value = 0.0179804 (* 1 = 0.0179804 loss)
+I0113 23:40:38.270339 18493 solver.cpp:493] Iteration 4800, lr = 0.00745253
+I0113 23:40:41.185631 18493 solver.cpp:196] Iteration 4900, loss = 0.0108692
+I0113 23:40:41.185700 18493 solver.cpp:211]     Train net output #0: loss = iter = 4900 value = 0.0108692 (* 1 = 0.0108692 loss)
+I0113 23:40:41.185719 18493 solver.cpp:493] Iteration 4900, lr = 0.00741498
+I0113 23:40:44.069787 18493 net.cpp:739] Serializing 9 layers
+I0113 23:40:44.091897 18493 solver.cpp:332] Snapshotting to examples/mnist/lenet_iter_5000.caffemodel
+I0113 23:40:44.173205 18493 solver.cpp:339] Snapshotting solver state to examples/mnist/lenet_iter_5000.solverstate
+I0113 23:40:44.188781 18493 solver.cpp:253] Iteration 5000, Testing net (#0)
+I0113 23:40:44.188843 18493 net.cpp:652] Copying source layer mnist
+I0113 23:40:44.188858 18493 net.cpp:652] Copying source layer conv1
+I0113 23:40:44.188884 18493 net.cpp:652] Copying source layer pool1
+I0113 23:40:44.188901 18493 net.cpp:652] Copying source layer conv2
+I0113 23:40:44.188920 18493 net.cpp:652] Copying source layer pool2
+I0113 23:40:44.188941 18493 net.cpp:652] Copying source layer ip1
+I0113 23:40:44.188961 18493 net.cpp:652] Copying source layer relu1
+I0113 23:40:44.188977 18493 net.cpp:652] Copying source layer ip2
+I0113 23:40:44.188990 18493 net.cpp:652] Copying source layer loss
+I0113 23:40:44.189007 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:40:44.370000 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:40:44.370061 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.984127
+I0113 23:40:44.370080 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.991379
+I0113 23:40:44.370128 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.981308
+I0113 23:40:44.370142 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.981818
+I0113 23:40:44.370157 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 1
+I0113 23:40:44.370192 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.977012
+I0113 23:40:44.370214 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.989899
+I0113 23:40:44.370235 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.977528
+I0113 23:40:44.370270 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.989362
+I0113 23:40:44.370290 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.987
+I0113 23:40:44.370307 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.998167
+I0113 23:40:44.370323 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.993143
+I0113 23:40:44.370340 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.996978
+I0113 23:40:44.370357 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.991583
+I0113 23:40:44.370373 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.996841
+I0113 23:40:44.370390 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.980747
+I0113 23:40:44.370407 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.999476
+I0113 23:40:44.370421 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.988368
+I0113 23:40:44.370439 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.975145
+I0113 23:40:44.370455 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.96878
+I0113 23:40:44.370476 18493 solver.cpp:313]     Test net output #21: loss = 0.0365536 (* 1 = 0.0365536 loss)
+I0113 23:40:44.385654 18493 solver.cpp:196] Iteration 5000, loss = 0.0420812
+I0113 23:40:44.385715 18493 solver.cpp:211]     Train net output #0: loss = iter = 5000 value = 0.0420812 (* 1 = 0.0420812 loss)
+I0113 23:40:44.385742 18493 solver.cpp:493] Iteration 5000, lr = 0.00737788
+I0113 23:40:47.303406 18493 solver.cpp:196] Iteration 5100, loss = 0.0314955
+I0113 23:40:47.303483 18493 solver.cpp:211]     Train net output #0: loss = iter = 5100 value = 0.0314955 (* 1 = 0.0314955 loss)
+I0113 23:40:47.303501 18493 solver.cpp:493] Iteration 5100, lr = 0.0073412
+I0113 23:40:50.216186 18493 solver.cpp:196] Iteration 5200, loss = 0.009452
+I0113 23:40:50.216270 18493 solver.cpp:211]     Train net output #0: loss = iter = 5200 value = 0.009452 (* 1 = 0.009452 loss)
+I0113 23:40:50.216321 18493 solver.cpp:493] Iteration 5200, lr = 0.00730495
+I0113 23:40:53.129065 18493 solver.cpp:196] Iteration 5300, loss = 0.00301203
+I0113 23:40:53.129155 18493 solver.cpp:211]     Train net output #0: loss = iter = 5300 value = 0.00301203 (* 1 = 0.00301203 loss)
+I0113 23:40:53.129179 18493 solver.cpp:493] Iteration 5300, lr = 0.00726911
+I0113 23:40:56.043372 18493 solver.cpp:196] Iteration 5400, loss = 0.023127
+I0113 23:40:56.094269 18493 solver.cpp:211]     Train net output #0: loss = iter = 5400 value = 0.023127 (* 1 = 0.023127 loss)
+I0113 23:40:56.094343 18493 solver.cpp:493] Iteration 5400, lr = 0.00723368
+I0113 23:40:58.967195 18493 solver.cpp:253] Iteration 5500, Testing net (#0)
+I0113 23:40:58.967258 18493 net.cpp:652] Copying source layer mnist
+I0113 23:40:58.967277 18493 net.cpp:652] Copying source layer conv1
+I0113 23:40:58.967293 18493 net.cpp:652] Copying source layer pool1
+I0113 23:40:58.967306 18493 net.cpp:652] Copying source layer conv2
+I0113 23:40:58.967320 18493 net.cpp:652] Copying source layer pool2
+I0113 23:40:58.967334 18493 net.cpp:652] Copying source layer ip1
+I0113 23:40:58.967347 18493 net.cpp:652] Copying source layer relu1
+I0113 23:40:58.967427 18493 net.cpp:652] Copying source layer ip2
+I0113 23:40:58.967442 18493 net.cpp:652] Copying source layer loss
+I0113 23:40:58.967464 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:40:59.162173 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0.977778
+I0113 23:40:59.162241 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:40:59.162259 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.990291
+I0113 23:40:59.162274 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.97
+I0113 23:40:59.162351 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.981308
+I0113 23:40:59.162366 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.98913
+I0113 23:40:59.162394 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.978022
+I0113 23:40:59.162416 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.981132
+I0113 23:40:59.162432 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.970874
+I0113 23:40:59.162454 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.95
+I0113 23:40:59.162489 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.979
+I0113 23:40:59.162510 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.999256
+I0113 23:40:59.162544 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.998761
+I0113 23:40:59.162562 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.991417
+I0113 23:40:59.162580 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.981662
+I0113 23:40:59.162610 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.996555
+I0113 23:40:59.162627 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.988359
+I0113 23:40:59.162644 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.984248
+I0113 23:40:59.162673 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.969069
+I0113 23:40:59.162691 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.980434
+I0113 23:40:59.162708 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.949679
+I0113 23:40:59.162730 18493 solver.cpp:313]     Test net output #21: loss = 0.0598109 (* 1 = 0.0598109 loss)
+I0113 23:40:59.177891 18493 solver.cpp:196] Iteration 5500, loss = 0.0123069
+I0113 23:40:59.177929 18493 solver.cpp:211]     Train net output #0: loss = iter = 5500 value = 0.0123069 (* 1 = 0.0123069 loss)
+I0113 23:40:59.177950 18493 solver.cpp:493] Iteration 5500, lr = 0.00719865
+I0113 23:41:02.092844 18493 solver.cpp:196] Iteration 5600, loss = 0.00148868
+I0113 23:41:02.092916 18493 solver.cpp:211]     Train net output #0: loss = iter = 5600 value = 0.00148868 (* 1 = 0.00148868 loss)
+I0113 23:41:02.092936 18493 solver.cpp:493] Iteration 5600, lr = 0.00716402
+I0113 23:41:02.749068 25013 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:41:05.007066 18493 solver.cpp:196] Iteration 5700, loss = 0.00547308
+I0113 23:41:05.007133 18493 solver.cpp:211]     Train net output #0: loss = iter = 5700 value = 0.00547308 (* 1 = 0.00547308 loss)
+I0113 23:41:05.007153 18493 solver.cpp:493] Iteration 5700, lr = 0.00712977
+I0113 23:41:07.922736 18493 solver.cpp:196] Iteration 5800, loss = 0.0478189
+I0113 23:41:07.922807 18493 solver.cpp:211]     Train net output #0: loss = iter = 5800 value = 0.0478189 (* 1 = 0.0478189 loss)
+I0113 23:41:07.922827 18493 solver.cpp:493] Iteration 5800, lr = 0.0070959
+I0113 23:41:10.843313 18493 solver.cpp:196] Iteration 5900, loss = 0.0072722
+I0113 23:41:10.843384 18493 solver.cpp:211]     Train net output #0: loss = iter = 5900 value = 0.0072722 (* 1 = 0.0072722 loss)
+I0113 23:41:10.843404 18493 solver.cpp:493] Iteration 5900, lr = 0.0070624
+I0113 23:41:13.734128 18493 solver.cpp:253] Iteration 6000, Testing net (#0)
+I0113 23:41:13.734186 18493 net.cpp:652] Copying source layer mnist
+I0113 23:41:13.734205 18493 net.cpp:652] Copying source layer conv1
+I0113 23:41:13.734222 18493 net.cpp:652] Copying source layer pool1
+I0113 23:41:13.734236 18493 net.cpp:652] Copying source layer conv2
+I0113 23:41:13.734249 18493 net.cpp:652] Copying source layer pool2
+I0113 23:41:13.734263 18493 net.cpp:652] Copying source layer ip1
+I0113 23:41:13.734277 18493 net.cpp:652] Copying source layer relu1
+I0113 23:41:13.734319 18493 net.cpp:652] Copying source layer ip2
+I0113 23:41:13.734334 18493 net.cpp:652] Copying source layer loss
+I0113 23:41:13.734357 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:41:13.929340 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:41:13.929406 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:41:13.929424 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.989362
+I0113 23:41:13.929440 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.972477
+I0113 23:41:13.929455 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.990099
+I0113 23:41:13.929527 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.980769
+I0113 23:41:13.929543 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.968085
+I0113 23:41:13.929556 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.990099
+I0113 23:41:13.929584 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.989362
+I0113 23:41:13.929600 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.970297
+I0113 23:41:13.929615 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.985
+I0113 23:41:13.929643 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.996758
+I0113 23:41:13.929658 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.986496
+I0113 23:41:13.929673 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.992978
+I0113 23:41:13.929688 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.978449
+I0113 23:41:13.929713 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.996546
+I0113 23:41:13.929738 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.981154
+I0113 23:41:13.929752 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.988987
+I0113 23:41:13.929775 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.976264
+I0113 23:41:13.929790 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.985542
+I0113 23:41:13.929805 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.959688
+I0113 23:41:13.929826 18493 solver.cpp:313]     Test net output #21: loss = 0.0544036 (* 1 = 0.0544036 loss)
+I0113 23:41:13.945024 18493 solver.cpp:196] Iteration 6000, loss = 0.00544809
+I0113 23:41:13.945087 18493 solver.cpp:211]     Train net output #0: loss = iter = 6000 value = 0.00544809 (* 1 = 0.00544809 loss)
+I0113 23:41:13.945116 18493 solver.cpp:493] Iteration 6000, lr = 0.00702927
+I0113 23:41:16.862257 18493 solver.cpp:196] Iteration 6100, loss = 0.004227
+I0113 23:41:16.862332 18493 solver.cpp:211]     Train net output #0: loss = iter = 6100 value = 0.004227 (* 1 = 0.004227 loss)
+I0113 23:41:16.862406 18493 solver.cpp:493] Iteration 6100, lr = 0.0069965
+I0113 23:41:19.775364 18493 solver.cpp:196] Iteration 6200, loss = 0.0112883
+I0113 23:41:19.775440 18493 solver.cpp:211]     Train net output #0: loss = iter = 6200 value = 0.0112883 (* 1 = 0.0112883 loss)
+I0113 23:41:19.775461 18493 solver.cpp:493] Iteration 6200, lr = 0.00696408
+I0113 23:41:22.688652 18493 solver.cpp:196] Iteration 6300, loss = 0.0108658
+I0113 23:41:22.688730 18493 solver.cpp:211]     Train net output #0: loss = iter = 6300 value = 0.0108658 (* 1 = 0.0108658 loss)
+I0113 23:41:22.688779 18493 solver.cpp:493] Iteration 6300, lr = 0.00693201
+I0113 23:41:25.602607 18493 solver.cpp:196] Iteration 6400, loss = 0.0106117
+I0113 23:41:25.602679 18493 solver.cpp:211]     Train net output #0: loss = iter = 6400 value = 0.0106117 (* 1 = 0.0106117 loss)
+I0113 23:41:25.602699 18493 solver.cpp:493] Iteration 6400, lr = 0.00690029
+I0113 23:41:28.491219 18493 solver.cpp:253] Iteration 6500, Testing net (#0)
+I0113 23:41:28.515605 18493 net.cpp:652] Copying source layer mnist
+I0113 23:41:28.515641 18493 net.cpp:652] Copying source layer conv1
+I0113 23:41:28.515665 18493 net.cpp:652] Copying source layer pool1
+I0113 23:41:28.515677 18493 net.cpp:652] Copying source layer conv2
+I0113 23:41:28.515691 18493 net.cpp:652] Copying source layer pool2
+I0113 23:41:28.515705 18493 net.cpp:652] Copying source layer ip1
+I0113 23:41:28.515718 18493 net.cpp:652] Copying source layer relu1
+I0113 23:41:28.515732 18493 net.cpp:652] Copying source layer ip2
+I0113 23:41:28.515753 18493 net.cpp:652] Copying source layer loss
+I0113 23:41:28.515774 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:41:28.696485 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0.989899
+I0113 23:41:28.696557 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.990909
+I0113 23:41:28.696634 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 1
+I0113 23:41:28.696655 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 1
+I0113 23:41:28.696669 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.99
+I0113 23:41:28.696684 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.988764
+I0113 23:41:28.696699 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.981132
+I0113 23:41:28.696713 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.990476
+I0113 23:41:28.696727 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.989796
+I0113 23:41:28.696743 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.958333
+I0113 23:41:28.696764 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.988
+I0113 23:41:28.696786 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.99339
+I0113 23:41:28.696806 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.994518
+I0113 23:41:28.696827 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.997032
+I0113 23:41:28.696845 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.995749
+I0113 23:41:28.696861 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.99542
+I0113 23:41:28.696877 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.983436
+I0113 23:41:28.696893 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.989932
+I0113 23:41:28.696909 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.979577
+I0113 23:41:28.696926 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.985047
+I0113 23:41:28.696943 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.981425
+I0113 23:41:28.696966 18493 solver.cpp:313]     Test net output #21: loss = 0.0397339 (* 1 = 0.0397339 loss)
+I0113 23:41:28.712054 18493 solver.cpp:196] Iteration 6500, loss = 0.036917
+I0113 23:41:28.712107 18493 solver.cpp:211]     Train net output #0: loss = iter = 6500 value = 0.036917 (* 1 = 0.036917 loss)
+I0113 23:41:28.712147 18493 solver.cpp:493] Iteration 6500, lr = 0.0068689
+I0113 23:41:30.474683 26645 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:41:31.625274 18493 solver.cpp:196] Iteration 6600, loss = 0.022056
+I0113 23:41:31.625357 18493 solver.cpp:211]     Train net output #0: loss = iter = 6600 value = 0.022056 (* 1 = 0.022056 loss)
+I0113 23:41:31.625430 18493 solver.cpp:493] Iteration 6600, lr = 0.00683784
+I0113 23:41:34.538609 18493 solver.cpp:196] Iteration 6700, loss = 0.00769119
+I0113 23:41:34.538679 18493 solver.cpp:211]     Train net output #0: loss = iter = 6700 value = 0.00769119 (* 1 = 0.00769119 loss)
+I0113 23:41:34.538743 18493 solver.cpp:493] Iteration 6700, lr = 0.00680711
+I0113 23:41:37.452525 18493 solver.cpp:196] Iteration 6800, loss = 0.0027087
+I0113 23:41:37.452613 18493 solver.cpp:211]     Train net output #0: loss = iter = 6800 value = 0.0027087 (* 1 = 0.0027087 loss)
+I0113 23:41:37.452633 18493 solver.cpp:493] Iteration 6800, lr = 0.0067767
+I0113 23:41:40.365670 18493 solver.cpp:196] Iteration 6900, loss = 0.005314
+I0113 23:41:40.365741 18493 solver.cpp:211]     Train net output #0: loss = iter = 6900 value = 0.005314 (* 1 = 0.005314 loss)
+I0113 23:41:40.365761 18493 solver.cpp:493] Iteration 6900, lr = 0.0067466
+I0113 23:41:43.249866 18493 solver.cpp:253] Iteration 7000, Testing net (#0)
+I0113 23:41:43.249919 18493 net.cpp:652] Copying source layer mnist
+I0113 23:41:43.249938 18493 net.cpp:652] Copying source layer conv1
+I0113 23:41:43.249953 18493 net.cpp:652] Copying source layer pool1
+I0113 23:41:43.249965 18493 net.cpp:652] Copying source layer conv2
+I0113 23:41:43.249979 18493 net.cpp:652] Copying source layer pool2
+I0113 23:41:43.249992 18493 net.cpp:652] Copying source layer ip1
+I0113 23:41:43.250071 18493 net.cpp:652] Copying source layer relu1
+I0113 23:41:43.250095 18493 net.cpp:652] Copying source layer ip2
+I0113 23:41:43.250109 18493 net.cpp:652] Copying source layer loss
+I0113 23:41:43.250130 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:41:43.444413 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0.988889
+I0113 23:41:43.444488 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:41:43.444505 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.973214
+I0113 23:41:43.444521 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.98913
+I0113 23:41:43.444536 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 1
+I0113 23:41:43.444550 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 1
+I0113 23:41:43.444566 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.97619
+I0113 23:41:43.444579 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 1
+I0113 23:41:43.444593 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.980952
+I0113 23:41:43.444608 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.976744
+I0113 23:41:43.444623 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.988
+I0113 23:41:43.444638 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.996495
+I0113 23:41:43.444715 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.994432
+I0113 23:41:43.444737 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.984109
+I0113 23:41:43.444758 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.987429
+I0113 23:41:43.444773 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.992856
+I0113 23:41:43.444794 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.984562
+I0113 23:41:43.444816 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.994858
+I0113 23:41:43.444831 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.985516
+I0113 23:41:43.444845 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.979367
+I0113 23:41:43.444866 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.972537
+I0113 23:41:43.444886 18493 solver.cpp:313]     Test net output #21: loss = 0.0465532 (* 1 = 0.0465532 loss)
+I0113 23:41:43.459884 18493 solver.cpp:196] Iteration 7000, loss = 0.0110044
+I0113 23:41:43.459920 18493 solver.cpp:211]     Train net output #0: loss = iter = 7000 value = 0.0110044 (* 1 = 0.0110044 loss)
+I0113 23:41:43.459940 18493 solver.cpp:493] Iteration 7000, lr = 0.00671681
+I0113 23:41:46.376232 18493 solver.cpp:196] Iteration 7100, loss = 0.0347241
+I0113 23:41:46.376310 18493 solver.cpp:211]     Train net output #0: loss = iter = 7100 value = 0.0347241 (* 1 = 0.0347241 loss)
+I0113 23:41:46.376392 18493 solver.cpp:493] Iteration 7100, lr = 0.00668733
+I0113 23:41:49.289392 18493 solver.cpp:196] Iteration 7200, loss = 0.00389222
+I0113 23:41:49.289465 18493 solver.cpp:211]     Train net output #0: loss = iter = 7200 value = 0.00389222 (* 1 = 0.00389222 loss)
+I0113 23:41:49.289485 18493 solver.cpp:493] Iteration 7200, lr = 0.00665815
+I0113 23:41:52.202407 18493 solver.cpp:196] Iteration 7300, loss = 0.0309702
+I0113 23:41:52.202476 18493 solver.cpp:211]     Train net output #0: loss = iter = 7300 value = 0.0309702 (* 1 = 0.0309702 loss)
+I0113 23:41:52.202496 18493 solver.cpp:493] Iteration 7300, lr = 0.00662927
+I0113 23:41:55.116224 18493 solver.cpp:196] Iteration 7400, loss = 0.00794431
+I0113 23:41:55.116293 18493 solver.cpp:211]     Train net output #0: loss = iter = 7400 value = 0.00794431 (* 1 = 0.00794431 loss)
+I0113 23:41:55.116313 18493 solver.cpp:493] Iteration 7400, lr = 0.00660067
+I0113 23:41:57.961187 27683 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:41:58.004681 18493 solver.cpp:253] Iteration 7500, Testing net (#0)
+I0113 23:41:58.004726 18493 net.cpp:652] Copying source layer mnist
+I0113 23:41:58.004786 18493 net.cpp:652] Copying source layer conv1
+I0113 23:41:58.004803 18493 net.cpp:652] Copying source layer pool1
+I0113 23:41:58.004815 18493 net.cpp:652] Copying source layer conv2
+I0113 23:41:58.004829 18493 net.cpp:652] Copying source layer pool2
+I0113 23:41:58.004851 18493 net.cpp:652] Copying source layer ip1
+I0113 23:41:58.004865 18493 net.cpp:652] Copying source layer relu1
+I0113 23:41:58.004885 18493 net.cpp:652] Copying source layer ip2
+I0113 23:41:58.004900 18493 net.cpp:652] Copying source layer loss
+I0113 23:41:58.004921 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:41:58.199594 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:41:58.199656 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:41:58.199672 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 1
+I0113 23:41:58.199687 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.989474
+I0113 23:41:58.199703 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 1
+I0113 23:41:58.199718 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.967391
+I0113 23:41:58.199733 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 1
+I0113 23:41:58.199748 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 1
+I0113 23:41:58.199761 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 1
+I0113 23:41:58.199775 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 1
+I0113 23:41:58.199790 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.996
+I0113 23:41:58.199805 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.999395
+I0113 23:41:58.199820 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.997585
+I0113 23:41:58.199885 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 1
+I0113 23:41:58.199908 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.982554
+I0113 23:41:58.199924 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.996739
+I0113 23:41:58.199939 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.996354
+I0113 23:41:58.199959 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.999901
+I0113 23:41:58.199980 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.990577
+I0113 23:41:58.200001 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.999485
+I0113 23:41:58.200014 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.998773
+I0113 23:41:58.200036 18493 solver.cpp:313]     Test net output #21: loss = 0.0129686 (* 1 = 0.0129686 loss)
+I0113 23:41:58.215188 18493 solver.cpp:196] Iteration 7500, loss = 0.0027815
+I0113 23:41:58.215225 18493 solver.cpp:211]     Train net output #0: loss = iter = 7500 value = 0.0027815 (* 1 = 0.0027815 loss)
+I0113 23:41:58.215245 18493 solver.cpp:493] Iteration 7500, lr = 0.00657236
+I0113 23:42:01.142011 18493 solver.cpp:196] Iteration 7600, loss = 0.00593683
+I0113 23:42:01.168540 18493 solver.cpp:211]     Train net output #0: loss = iter = 7600 value = 0.00593683 (* 1 = 0.00593683 loss)
+I0113 23:42:01.168586 18493 solver.cpp:493] Iteration 7600, lr = 0.00654433
+I0113 23:42:04.067992 18493 solver.cpp:196] Iteration 7700, loss = 0.0413099
+I0113 23:42:04.068074 18493 solver.cpp:211]     Train net output #0: loss = iter = 7700 value = 0.0413099 (* 1 = 0.0413099 loss)
+I0113 23:42:04.068140 18493 solver.cpp:493] Iteration 7700, lr = 0.00651658
+I0113 23:42:06.981835 18493 solver.cpp:196] Iteration 7800, loss = 0.00569096
+I0113 23:42:06.981914 18493 solver.cpp:211]     Train net output #0: loss = iter = 7800 value = 0.00569096 (* 1 = 0.00569096 loss)
+I0113 23:42:06.981976 18493 solver.cpp:493] Iteration 7800, lr = 0.00648911
+I0113 23:42:09.895180 18493 solver.cpp:196] Iteration 7900, loss = 0.00441021
+I0113 23:42:09.895251 18493 solver.cpp:211]     Train net output #0: loss = iter = 7900 value = 0.00441021 (* 1 = 0.00441021 loss)
+I0113 23:42:09.895318 18493 solver.cpp:493] Iteration 7900, lr = 0.0064619
+I0113 23:42:12.778934 18493 solver.cpp:253] Iteration 8000, Testing net (#0)
+I0113 23:42:12.778987 18493 net.cpp:652] Copying source layer mnist
+I0113 23:42:12.779006 18493 net.cpp:652] Copying source layer conv1
+I0113 23:42:12.779022 18493 net.cpp:652] Copying source layer pool1
+I0113 23:42:12.779036 18493 net.cpp:652] Copying source layer conv2
+I0113 23:42:12.779049 18493 net.cpp:652] Copying source layer pool2
+I0113 23:42:12.779063 18493 net.cpp:652] Copying source layer ip1
+I0113 23:42:12.779077 18493 net.cpp:652] Copying source layer relu1
+I0113 23:42:12.779088 18493 net.cpp:652] Copying source layer ip2
+I0113 23:42:12.779103 18493 net.cpp:652] Copying source layer loss
+I0113 23:42:12.779145 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:42:12.973721 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0.980769
+I0113 23:42:12.973760 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.990826
+I0113 23:42:12.973776 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 1
+I0113 23:42:12.973791 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 1
+I0113 23:42:12.973806 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.990099
+I0113 23:42:12.973820 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 1
+I0113 23:42:12.973834 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 1
+I0113 23:42:12.973881 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.990291
+I0113 23:42:12.973896 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.978947
+I0113 23:42:12.973917 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.979592
+I0113 23:42:12.973932 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.991
+I0113 23:42:12.973954 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.995224
+I0113 23:42:12.973975 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.993741
+I0113 23:42:12.973990 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.998733
+I0113 23:42:12.974011 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.990326
+I0113 23:42:12.974026 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.998851
+I0113 23:42:12.974047 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.999599
+I0113 23:42:12.974066 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.999233
+I0113 23:42:12.974081 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.988782
+I0113 23:42:12.974097 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.982808
+I0113 23:42:12.974113 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.975848
+I0113 23:42:12.974135 18493 solver.cpp:313]     Test net output #21: loss = 0.0352139 (* 1 = 0.0352139 loss)
+I0113 23:42:12.989195 18493 solver.cpp:196] Iteration 8000, loss = 0.00567042
+I0113 23:42:12.989277 18493 solver.cpp:211]     Train net output #0: loss = iter = 8000 value = 0.00567042 (* 1 = 0.00567042 loss)
+I0113 23:42:12.989297 18493 solver.cpp:493] Iteration 8000, lr = 0.00643496
+I0113 23:42:15.905335 18493 solver.cpp:196] Iteration 8100, loss = 0.0189378
+I0113 23:42:15.905411 18493 solver.cpp:211]     Train net output #0: loss = iter = 8100 value = 0.0189378 (* 1 = 0.0189378 loss)
+I0113 23:42:15.905431 18493 solver.cpp:493] Iteration 8100, lr = 0.00640827
+I0113 23:42:18.818518 18493 solver.cpp:196] Iteration 8200, loss = 0.00856412
+I0113 23:42:18.818578 18493 solver.cpp:211]     Train net output #0: loss = iter = 8200 value = 0.00856412 (* 1 = 0.00856412 loss)
+I0113 23:42:18.818596 18493 solver.cpp:493] Iteration 8200, lr = 0.00638185
+I0113 23:42:21.731575 18493 solver.cpp:196] Iteration 8300, loss = 0.04758
+I0113 23:42:21.731645 18493 solver.cpp:211]     Train net output #0: loss = iter = 8300 value = 0.04758 (* 1 = 0.04758 loss)
+I0113 23:42:21.731714 18493 solver.cpp:493] Iteration 8300, lr = 0.00635568
+I0113 23:42:24.687201 18493 solver.cpp:196] Iteration 8400, loss = 0.00781201
+I0113 23:42:24.687271 18493 solver.cpp:211]     Train net output #0: loss = iter = 8400 value = 0.00781201 (* 1 = 0.00781201 loss)
+I0113 23:42:24.687290 18493 solver.cpp:493] Iteration 8400, lr = 0.00632975
+I0113 23:42:25.722473 28731 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:42:27.572934 18493 solver.cpp:253] Iteration 8500, Testing net (#0)
+I0113 23:42:27.573004 18493 net.cpp:652] Copying source layer mnist
+I0113 23:42:27.573086 18493 net.cpp:652] Copying source layer conv1
+I0113 23:42:27.573104 18493 net.cpp:652] Copying source layer pool1
+I0113 23:42:27.573117 18493 net.cpp:652] Copying source layer conv2
+I0113 23:42:27.573139 18493 net.cpp:652] Copying source layer pool2
+I0113 23:42:27.573159 18493 net.cpp:652] Copying source layer ip1
+I0113 23:42:27.573174 18493 net.cpp:652] Copying source layer relu1
+I0113 23:42:27.573187 18493 net.cpp:652] Copying source layer ip2
+I0113 23:42:27.573215 18493 net.cpp:652] Copying source layer loss
+I0113 23:42:27.573266 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:42:27.767737 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:42:27.767810 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:42:27.767885 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 1
+I0113 23:42:27.767901 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 1
+I0113 23:42:27.767916 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 1
+I0113 23:42:27.767930 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 1
+I0113 23:42:27.767945 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 1
+I0113 23:42:27.767958 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 1
+I0113 23:42:27.767982 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 1
+I0113 23:42:27.768003 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 1
+I0113 23:42:27.768018 18493 solver.cpp:313]     Test net output #10: average_accuracy = 1
+I0113 23:42:27.768040 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 1
+I0113 23:42:27.768061 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.999759
+I0113 23:42:27.768084 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.999485
+I0113 23:42:27.768100 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.997252
+I0113 23:42:27.768116 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.995213
+I0113 23:42:27.768136 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.995202
+I0113 23:42:27.768151 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 1
+I0113 23:42:27.768170 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.99567
+I0113 23:42:27.768188 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.992608
+I0113 23:42:27.768247 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.999899
+I0113 23:42:27.768270 18493 solver.cpp:313]     Test net output #21: loss = 0.00323241 (* 1 = 0.00323241 loss)
+I0113 23:42:27.783546 18493 solver.cpp:196] Iteration 8500, loss = 0.0083984
+I0113 23:42:27.783610 18493 solver.cpp:211]     Train net output #0: loss = iter = 8500 value = 0.0083984 (* 1 = 0.0083984 loss)
+I0113 23:42:27.783640 18493 solver.cpp:493] Iteration 8500, lr = 0.00630407
+I0113 23:42:30.698493 18493 solver.cpp:196] Iteration 8600, loss = 0.000879913
+I0113 23:42:30.698562 18493 solver.cpp:211]     Train net output #0: loss = iter = 8600 value = 0.000879913 (* 1 = 0.000879913 loss)
+I0113 23:42:30.698581 18493 solver.cpp:493] Iteration 8600, lr = 0.00627864
+I0113 23:42:33.611616 18493 solver.cpp:196] Iteration 8700, loss = 0.00487975
+I0113 23:42:33.638818 18493 solver.cpp:211]     Train net output #0: loss = iter = 8700 value = 0.00487975 (* 1 = 0.00487975 loss)
+I0113 23:42:33.638839 18493 solver.cpp:493] Iteration 8700, lr = 0.00625344
+I0113 23:42:36.538893 18493 solver.cpp:196] Iteration 8800, loss = 0.00122785
+I0113 23:42:36.538980 18493 solver.cpp:211]     Train net output #0: loss = iter = 8800 value = 0.00122785 (* 1 = 0.00122785 loss)
+I0113 23:42:36.538998 18493 solver.cpp:493] Iteration 8800, lr = 0.00622847
+I0113 23:42:39.453162 18493 solver.cpp:196] Iteration 8900, loss = 0.000753563
+I0113 23:42:39.453246 18493 solver.cpp:211]     Train net output #0: loss = iter = 8900 value = 0.000753563 (* 1 = 0.000753563 loss)
+I0113 23:42:39.453306 18493 solver.cpp:493] Iteration 8900, lr = 0.00620374
+I0113 23:42:42.336606 18493 solver.cpp:253] Iteration 9000, Testing net (#0)
+I0113 23:42:42.336668 18493 net.cpp:652] Copying source layer mnist
+I0113 23:42:42.336688 18493 net.cpp:652] Copying source layer conv1
+I0113 23:42:42.336706 18493 net.cpp:652] Copying source layer pool1
+I0113 23:42:42.336719 18493 net.cpp:652] Copying source layer conv2
+I0113 23:42:42.336760 18493 net.cpp:652] Copying source layer pool2
+I0113 23:42:42.336774 18493 net.cpp:652] Copying source layer ip1
+I0113 23:42:42.336794 18493 net.cpp:652] Copying source layer relu1
+I0113 23:42:42.336807 18493 net.cpp:652] Copying source layer ip2
+I0113 23:42:42.336820 18493 net.cpp:652] Copying source layer loss
+I0113 23:42:42.336843 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:42:42.359560 29356 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:42:42.531056 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:42:42.531092 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:42:42.531108 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.979798
+I0113 23:42:42.531152 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 1
+I0113 23:42:42.531167 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.990196
+I0113 23:42:42.531180 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 1
+I0113 23:42:42.531208 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.99
+I0113 23:42:42.531232 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 1
+I0113 23:42:42.531252 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.989247
+I0113 23:42:42.531288 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 1
+I0113 23:42:42.531309 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.995
+I0113 23:42:42.531342 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.99991
+I0113 23:42:42.531360 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.996099
+I0113 23:42:42.531378 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.998703
+I0113 23:42:42.531394 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.9993
+I0113 23:42:42.531410 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.996368
+I0113 23:42:42.531430 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.998405
+I0113 23:42:42.531460 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 1
+I0113 23:42:42.531476 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 1
+I0113 23:42:42.531491 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.986446
+I0113 23:42:42.531520 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.998704
+I0113 23:42:42.531541 18493 solver.cpp:313]     Test net output #21: loss = 0.00906157 (* 1 = 0.00906157 loss)
+I0113 23:42:42.546640 18493 solver.cpp:196] Iteration 9000, loss = 0.0209725
+I0113 23:42:42.546694 18493 solver.cpp:211]     Train net output #0: loss = iter = 9000 value = 0.0209725 (* 1 = 0.0209725 loss)
+I0113 23:42:42.546720 18493 solver.cpp:493] Iteration 9000, lr = 0.00617924
+I0113 23:42:45.461158 18493 solver.cpp:196] Iteration 9100, loss = 0.00657898
+I0113 23:42:45.461236 18493 solver.cpp:211]     Train net output #0: loss = iter = 9100 value = 0.00657898 (* 1 = 0.00657898 loss)
+I0113 23:42:45.461315 18493 solver.cpp:493] Iteration 9100, lr = 0.00615496
+I0113 23:42:48.374706 18493 solver.cpp:196] Iteration 9200, loss = 0.00451084
+I0113 23:42:48.374776 18493 solver.cpp:211]     Train net output #0: loss = iter = 9200 value = 0.00451084 (* 1 = 0.00451084 loss)
+I0113 23:42:48.374795 18493 solver.cpp:493] Iteration 9200, lr = 0.0061309
+I0113 23:42:51.287542 18493 solver.cpp:196] Iteration 9300, loss = 0.00591052
+I0113 23:42:51.287602 18493 solver.cpp:211]     Train net output #0: loss = iter = 9300 value = 0.00591052 (* 1 = 0.00591052 loss)
+I0113 23:42:51.287621 18493 solver.cpp:493] Iteration 9300, lr = 0.00610706
+I0113 23:42:53.400897 29773 data_layer.cpp:195] Restarting data prefetching from start.
+I0113 23:42:54.201577 18493 solver.cpp:196] Iteration 9400, loss = 0.0461522
+I0113 23:42:54.201644 18493 solver.cpp:211]     Train net output #0: loss = iter = 9400 value = 0.0461522 (* 1 = 0.0461522 loss)
+I0113 23:42:54.201704 18493 solver.cpp:493] Iteration 9400, lr = 0.00608343
+I0113 23:42:57.088879 18493 solver.cpp:253] Iteration 9500, Testing net (#0)
+I0113 23:42:57.088938 18493 net.cpp:652] Copying source layer mnist
+I0113 23:42:57.088956 18493 net.cpp:652] Copying source layer conv1
+I0113 23:42:57.088973 18493 net.cpp:652] Copying source layer pool1
+I0113 23:42:57.088985 18493 net.cpp:652] Copying source layer conv2
+I0113 23:42:57.088999 18493 net.cpp:652] Copying source layer pool2
+I0113 23:42:57.089011 18493 net.cpp:652] Copying source layer ip1
+I0113 23:42:57.089025 18493 net.cpp:652] Copying source layer relu1
+I0113 23:42:57.089036 18493 net.cpp:652] Copying source layer ip2
+I0113 23:42:57.089138 18493 net.cpp:652] Copying source layer loss
+I0113 23:42:57.089154 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:42:57.284183 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 0.990196
+I0113 23:42:57.284240 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 1
+I0113 23:42:57.284315 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.979798
+I0113 23:42:57.284329 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 1
+I0113 23:42:57.284351 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 1
+I0113 23:42:57.284366 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.976471
+I0113 23:42:57.284380 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 0.990196
+I0113 23:42:57.284402 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.973913
+I0113 23:42:57.284418 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 1
+I0113 23:42:57.284438 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 0.988889
+I0113 23:42:57.284453 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.99
+I0113 23:42:57.284476 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.999621
+I0113 23:42:57.284490 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.999063
+I0113 23:42:57.284512 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.988218
+I0113 23:42:57.284526 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.993116
+I0113 23:42:57.284543 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.996221
+I0113 23:42:57.284560 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.985774
+I0113 23:42:57.284576 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.994566
+I0113 23:42:57.284592 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.997647
+I0113 23:42:57.284610 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 1
+I0113 23:42:57.284626 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.993165
+I0113 23:42:57.284649 18493 solver.cpp:313]     Test net output #21: loss = 0.0261116 (* 1 = 0.0261116 loss)
+I0113 23:42:57.299957 18493 solver.cpp:196] Iteration 9500, loss = 0.00361284
+I0113 23:42:57.300014 18493 solver.cpp:211]     Train net output #0: loss = iter = 9500 value = 0.00361284 (* 1 = 0.00361284 loss)
+I0113 23:42:57.300043 18493 solver.cpp:493] Iteration 9500, lr = 0.00606002
+I0113 23:43:00.214716 18493 solver.cpp:196] Iteration 9600, loss = 0.00212603
+I0113 23:43:00.214794 18493 solver.cpp:211]     Train net output #0: loss = iter = 9600 value = 0.00212603 (* 1 = 0.00212603 loss)
+I0113 23:43:00.214814 18493 solver.cpp:493] Iteration 9600, lr = 0.00603682
+I0113 23:43:03.127488 18493 solver.cpp:196] Iteration 9700, loss = 0.002713
+I0113 23:43:03.127563 18493 solver.cpp:211]     Train net output #0: loss = iter = 9700 value = 0.002713 (* 1 = 0.002713 loss)
+I0113 23:43:03.127583 18493 solver.cpp:493] Iteration 9700, lr = 0.00601382
+I0113 23:43:06.040010 18493 solver.cpp:196] Iteration 9800, loss = 0.0177701
+I0113 23:43:06.112364 18493 solver.cpp:211]     Train net output #0: loss = iter = 9800 value = 0.0177701 (* 1 = 0.0177701 loss)
+I0113 23:43:06.112396 18493 solver.cpp:493] Iteration 9800, lr = 0.00599102
+I0113 23:43:09.013118 18493 solver.cpp:196] Iteration 9900, loss = 0.00692073
+I0113 23:43:09.013200 18493 solver.cpp:211]     Train net output #0: loss = iter = 9900 value = 0.00692073 (* 1 = 0.00692073 loss)
+I0113 23:43:09.013223 18493 solver.cpp:493] Iteration 9900, lr = 0.00596843
+I0113 23:43:11.897228 18493 net.cpp:739] Serializing 9 layers
+I0113 23:43:11.919553 18493 solver.cpp:332] Snapshotting to examples/mnist/lenet_iter_10000.caffemodel
+I0113 23:43:11.996662 18493 solver.cpp:339] Snapshotting solver state to examples/mnist/lenet_iter_10000.solverstate
+I0113 23:43:12.025359 18493 solver.cpp:234] Iteration 10000, loss = 0.00308372
+I0113 23:43:12.025413 18493 solver.cpp:253] Iteration 10000, Testing net (#0)
+I0113 23:43:12.025459 18493 net.cpp:652] Copying source layer mnist
+I0113 23:43:12.025475 18493 net.cpp:652] Copying source layer conv1
+I0113 23:43:12.025490 18493 net.cpp:652] Copying source layer pool1
+I0113 23:43:12.025503 18493 net.cpp:652] Copying source layer conv2
+I0113 23:43:12.025517 18493 net.cpp:652] Copying source layer pool2
+I0113 23:43:12.025539 18493 net.cpp:652] Copying source layer ip1
+I0113 23:43:12.025560 18493 net.cpp:652] Copying source layer relu1
+I0113 23:43:12.025573 18493 net.cpp:652] Copying source layer ip2
+I0113 23:43:12.025593 18493 net.cpp:652] Copying source layer loss
+I0113 23:43:12.025614 18493 solver.cpp:267] Testing iter 0/1
+I0113 23:43:12.206496 18493 solver.cpp:313]     Test net output #0: accuracy_per_class = 1
+I0113 23:43:12.206536 18493 solver.cpp:313]     Test net output #1: accuracy_per_class = 0.992063
+I0113 23:43:12.206553 18493 solver.cpp:313]     Test net output #2: accuracy_per_class = 0.991379
+I0113 23:43:12.206599 18493 solver.cpp:313]     Test net output #3: accuracy_per_class = 0.981308
+I0113 23:43:12.206614 18493 solver.cpp:313]     Test net output #4: accuracy_per_class = 0.990909
+I0113 23:43:12.206629 18493 solver.cpp:313]     Test net output #5: accuracy_per_class = 0.965517
+I0113 23:43:12.206643 18493 solver.cpp:313]     Test net output #6: accuracy_per_class = 1
+I0113 23:43:12.206666 18493 solver.cpp:313]     Test net output #7: accuracy_per_class = 0.979798
+I0113 23:43:12.206688 18493 solver.cpp:313]     Test net output #8: accuracy_per_class = 0.977528
+I0113 23:43:12.206709 18493 solver.cpp:313]     Test net output #9: accuracy_per_class = 1
+I0113 23:43:12.206723 18493 solver.cpp:313]     Test net output #10: average_accuracy = 0.988
+I0113 23:43:12.206744 18493 solver.cpp:313]     Test net output #11: average_precision_per_class = 0.998267
+I0113 23:43:12.206765 18493 solver.cpp:313]     Test net output #12: average_precision_per_class = 0.997014
+I0113 23:43:12.206782 18493 solver.cpp:313]     Test net output #13: average_precision_per_class = 0.995449
+I0113 23:43:12.206799 18493 solver.cpp:313]     Test net output #14: average_precision_per_class = 0.990122
+I0113 23:43:12.206815 18493 solver.cpp:313]     Test net output #15: average_precision_per_class = 0.996806
+I0113 23:43:12.206832 18493 solver.cpp:313]     Test net output #16: average_precision_per_class = 0.987425
+I0113 23:43:12.206850 18493 solver.cpp:313]     Test net output #17: average_precision_per_class = 0.999742
+I0113 23:43:12.206866 18493 solver.cpp:313]     Test net output #18: average_precision_per_class = 0.988484
+I0113 23:43:12.206882 18493 solver.cpp:313]     Test net output #19: average_precision_per_class = 0.974613
+I0113 23:43:12.206899 18493 solver.cpp:313]     Test net output #20: average_precision_per_class = 0.978433
+I0113 23:43:12.206923 18493 solver.cpp:313]     Test net output #21: loss = 0.0367897 (* 1 = 0.0367897 loss)
+I0113 23:43:12.206944 18493 solver.cpp:239] Optimization Done.
+I0113 23:43:12.206960 18493 caffe.cpp:120] Optimization Done.

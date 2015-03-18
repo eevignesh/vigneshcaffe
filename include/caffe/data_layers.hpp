@@ -183,6 +183,8 @@ class VideoShotsDataLayer : public BasePrefetchingDataLayer<Dtype> {
   int max_buffer_size_;
   size_t negative_swap_percentage_; // should be less than 100
   int num_negative_samples_;
+  vector <int> neg_added_from_same_video_;
+  int max_same_video_negs_;
 
   // LEVELDB-NEGATIVES
   shared_ptr<leveldb::DB> db_neg_;

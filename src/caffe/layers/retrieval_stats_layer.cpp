@@ -12,6 +12,9 @@
 #include "caffe/util/math_functions.hpp"
 #include "caffe/vision_layers.hpp"
 
+
+DEFINE_int32(num_classes, 15, "Number of classes");
+
 namespace caffe {
 
 template <typename Dtype>
@@ -107,7 +110,7 @@ void RetrievalStatsLayer<Dtype>:: ComputeStats(const Dtype* video_ids, const vec
   int current_class_id = video_id_to_class_[current_video_id];
   //vector<int> precisions;
   // Note, the first shot is always excluded ... since it is the same shot
-  for (int i = 1; i < sort_ids.size(); ++i) {
+  for (int i = 0; i < sort_ids.size(); ++i) {
     if ( (static_cast<int>(video_ids[sort_ids[i]]) != current_video_id) ||
         !this->exclude_same_video_shots_) {
       val++;
@@ -213,6 +216,14 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   std::vector<int> sort_ids(num_samples);
   vector<int> top_5_ids(5,0);
 
+  vector<double> inter_class_distance(FLAGS_num_classes, 0);
+  vector<double> intra_class_distance(FLAGS_num_classes, 0);
+  vector<double> num_inter_class(FLAGS_num_classes, 1);
+  vector<double> num_intra_class(FLAGS_num_classes, 1);
+  vector<double> ap_per_class(FLAGS_num_classes, 0);
+  vector<double> num_samples_per_class(FLAGS_num_classes, 0);
+  double dist_value = 0;
+
   for (int i = 0; i < num_samples; ++i) {
     double ap, acc_1, acc_5;
     std::iota(sort_ids.begin(), sort_ids.end(), 0);
@@ -225,7 +236,7 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
         distance_matrix_.offset(i, 0, 0, 0));
     std::sort(sort_ids.begin(), sort_ids.end(), sbd);
     
-    CHECK_EQ(sort_ids[0], i);
+    //CHECK_EQ(sort_ids[0], i);
     
     int sample_label = -100;
 
@@ -239,6 +250,39 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 
     if (sample_label < 0) {
       continue;
+    }
+
+
+    // TODO: Remove later ... only for debugging now
+    if (!this->layer_param_.retrieval_stats_param().video_level_retrieval()) {
+      for (int samp = 0; samp < num_samples; ++samp)  {
+        if (samp == i) {
+          continue;
+        }
+        dist_value = static_cast<double>(*(distance_matrix_.cpu_data() + distance_matrix_.offset(i,samp,0,0)));
+        if (video_id_to_class_[static_cast<int>(bottom_video_ids[samp])] == sample_label) {
+          inter_class_distance[sample_label-1] += dist_value;
+          num_inter_class[sample_label-1]++;
+        } else {
+          intra_class_distance[sample_label-1] += dist_value;
+          num_intra_class[sample_label-1]++;
+        }
+
+      }
+    } else {
+      for (int samp = 0; samp < num_samples; ++samp) {
+        if (samp == i) {
+          continue;
+        }
+        dist_value = static_cast<double>(*(distance_matrix_.cpu_data() + distance_matrix_.offset(i,samp,0,0)));
+         if (video_id_to_class_[static_cast<int>(temp_video_ids_.cpu_data()[samp])] == sample_label) {
+            inter_class_distance[sample_label-1] += dist_value;
+            num_inter_class[sample_label-1]++;
+          } else {
+            intra_class_distance[sample_label-1] += dist_value;
+            num_intra_class[sample_label-1]++;
+          }
+      }  
     }
 
     // -------------------------- Don't compute mAP for samples with labels < 0 -----------------------
@@ -256,6 +300,8 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       mean_acc_1 += acc_1;
       mean_acc_5 += acc_5;
       num_positives++;
+      ap_per_class[sample_label-1] += ap;
+      num_samples_per_class[sample_label-1]++;
     }
 
     if (stats_output_file_ != "" && sample_label >= 0) {
@@ -291,6 +337,12 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
           << std::endl;
       }
     }
+  }
+
+  for (int cid = 0; cid < FLAGS_num_classes; ++cid) {
+    LOG(INFO) << "class: " << cid+1 << ":inter:" << inter_class_distance[cid]/num_inter_class[cid];
+    LOG(INFO) << "class: " << cid+1 << ":intra:" << intra_class_distance[cid]/num_intra_class[cid];
+    LOG(INFO) << "class: " << cid+1 << ":AP:" << ap_per_class[cid]/num_samples_per_class[cid];
   }
 
   if (stats_output_file_ != "") {

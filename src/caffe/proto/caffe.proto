@@ -563,6 +563,9 @@ message VideoShotsDataParameter {
   // Only useful for pairwise
   optional float max_shot_distance = 17 [default = 5.0];
 
+
+  // maximum number of negs from same video
+  optional uint32 max_same_video_negs = 18 [default = 0];
 }
 
 // Message that stores parameters used by FlexibleDataLayer
@@ -716,6 +719,7 @@ message MaxMarginLossParameter {
   optional Norm norm = 1 [default = L1];
   optional string id_to_weight_file = 2 [default = ""];
   optional bool use_direct_weight = 3 [default = false];
+  optional float margin = 4 [default = 1.0];
 }
 
 // Message that stores parameters used by MemoryDataLayer

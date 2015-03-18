@@ -37,6 +37,7 @@ void MaxMarginLossLayer<Dtype>::LayerSetUp(
   }
 
   this->use_direct_weight_ = this->layer_param_.max_margin_loss_param().use_direct_weight();
+  this->margin_ = this->layer_param_.max_margin_loss_param().margin();
 }
 
 template <typename Dtype>
@@ -83,19 +84,19 @@ void MaxMarginLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       if (use_direct_weight_) {
         CHECK_GE(bottom_video_id_data[i], Dtype(0));
         if (this->layer_param_.max_margin_loss_param().norm() == MaxMarginLossParameter_Norm_L2) {
-          bottom_bogus_diff[i] = sqrt(bottom_video_id_data[i]) * std::max(Dtype(0), 1 - bottom_bogus_diff[i]);
+          bottom_bogus_diff[i] = sqrt(bottom_video_id_data[i]) * std::max(Dtype(0), margin_ - bottom_bogus_diff[i]);
         } else {
-          bottom_bogus_diff[i] = bottom_video_id_data[i]* std::max(Dtype(0), 1 - bottom_bogus_diff[i]);
+          bottom_bogus_diff[i] = bottom_video_id_data[i]* std::max(Dtype(0), margin_ - bottom_bogus_diff[i]);
         }
       } else {
         if (this->layer_param_.max_margin_loss_param().norm() == MaxMarginLossParameter_Norm_L2) {
-          bottom_bogus_diff[i] = sqrt(video_id_to_weight_[static_cast<int>(bottom_video_id_data[i])]) * std::max(Dtype(0), 1 - bottom_bogus_diff[i]);
+          bottom_bogus_diff[i] = sqrt(video_id_to_weight_[static_cast<int>(bottom_video_id_data[i])]) * std::max(Dtype(0), margin_ - bottom_bogus_diff[i]);
         } else {
-          bottom_bogus_diff[i] = video_id_to_weight_[static_cast<int>(bottom_video_id_data[i])] * std::max(Dtype(0), 1 - bottom_bogus_diff[i]);
+          bottom_bogus_diff[i] = video_id_to_weight_[static_cast<int>(bottom_video_id_data[i])] * std::max(Dtype(0), margin_ - bottom_bogus_diff[i]);
         }
       }
     } else {
-      bottom_bogus_diff[i] = std::max(Dtype(0), 1 - bottom_bogus_diff[i]);
+      bottom_bogus_diff[i] = std::max(Dtype(0), margin_ - bottom_bogus_diff[i]);
     }
     
     
@@ -151,13 +152,13 @@ void MaxMarginLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       if (bottom->size() == 3) {
         if (use_direct_weight_) {
           bottom_bogus_diff[i] = bottom_video_id_data[i] *
-                             std::max(Dtype(0), 1 - bottom_bogus_diff[i]);
+                             std::max(Dtype(0), margin_ - bottom_bogus_diff[i]);
         } else {
           bottom_bogus_diff[i] = video_id_to_weight_[static_cast<int>(bottom_video_id_data[i])] *
-                               std::max(Dtype(0), 1 - bottom_bogus_diff[i]);
+                               std::max(Dtype(0), margin_ - bottom_bogus_diff[i]);
         }
       } else {
-        bottom_bogus_diff[i] = std::max(Dtype(0), 1 - bottom_bogus_diff[i]);
+        bottom_bogus_diff[i] = std::max(Dtype(0), margin_ - bottom_bogus_diff[i]);
       }
 
 

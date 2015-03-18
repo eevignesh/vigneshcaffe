@@ -978,7 +978,7 @@ class MaxMarginLossLayer : public LossLayer<Dtype> {
   boost::unordered_map<int, float> video_id_to_weight_;
 
   bool use_direct_weight_;
-
+  float margin_;
 };
 
 

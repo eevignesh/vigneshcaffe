@@ -1,0 +1,4 @@
+Log file created at: 2015/01/13 20:14:29
+Running on machine: tibet.stanford.edu
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+F0113 20:14:29.322103 31073 layer_factory.cpp:84] Layer relu1 has unknown engine.

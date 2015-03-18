@@ -71,6 +71,7 @@ void VideoShotsDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bott
   output_shot_distance_ = this->layer_param_.video_shots_data_param().output_shot_distance();
 
   max_buffer_size_ = 0;
+  max_same_video_negs_ = this->layer_param_.video_shots_data_param().max_same_video_negs();
 
   if (num_negative_samples_ > 0) {
     max_buffer_size_ = this->layer_param_.video_shots_data_param().max_buffer_size();
@@ -209,6 +210,9 @@ void VideoShotsDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bott
   target_ctr_ = -1;
   context_ctr_ = 0;
 
+  // Initialize the negative added vector
+  neg_added_from_same_video_.insert(neg_added_from_same_video_.begin(), batch_size_, 0);
+
   // Initialize video-ids vector
   video_ids_.insert(video_ids_.begin(), batch_size_, 0);
 
@@ -300,19 +304,40 @@ void VideoShotsDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bott
     }
 
     int num_shots = video_shots.shot_words_size();
-    int sample_shot = rand() % num_shots;
 
-    string negative_key = stringprintf("%d:%d", video_shots.video_id(),
-        video_shots.shot_ids(sample_shot));
-    if (negative_keys_set_.find(negative_key) == negative_keys_set_.end()) {
-      // Copy data into negative samples
-      for (int f = 0; f < feature_size_; ++f) {
-        negatives_mutable_data[num_negatives_added*feature_size_ + f] =
-          video_shots.shot_words(sample_shot).float_data(f);
+
+    if (this->layer_param_.video_shots_data_param().negative_dataset() == "") {
+
+      int sample_shot = rand() % num_shots;
+
+      string negative_key = stringprintf("%d:%d", video_shots.video_id(),
+          video_shots.shot_ids(sample_shot));
+      if (negative_keys_set_.find(negative_key) == negative_keys_set_.end()) {
+        // Copy data into negative samples
+        for (int f = 0; f < feature_size_; ++f) {
+          negatives_mutable_data[num_negatives_added*feature_size_ + f] =
+            video_shots.shot_words(sample_shot).float_data(f);
+        }
+        negative_id_to_key_.push_back(negative_key);
+        negative_keys_set_.insert(negative_key);
+        num_negatives_added++;
       }
-      negative_id_to_key_.push_back(negative_key);
-      negative_keys_set_.insert(negative_key);
-      num_negatives_added++;
+
+    } else {
+      for (int sample_shot = 0; sample_shot < num_shots; ++sample_shot) {
+        string negative_key = stringprintf("%d:%d", video_shots.video_id(),
+            video_shots.shot_ids(sample_shot));
+        if (negative_keys_set_.find(negative_key) == negative_keys_set_.end()) {
+          // Copy data into negative samples
+          for (int f = 0; f < feature_size_; ++f) {
+            negatives_mutable_data[num_negatives_added*feature_size_ + f] =
+              video_shots.shot_words(sample_shot).float_data(f);
+          }
+          negative_id_to_key_.push_back(negative_key);
+          negative_keys_set_.insert(negative_key);
+          num_negatives_added++;
+        }
+      }
     }
 
     if (num_negatives_added >= max_buffer_size_) {
@@ -355,6 +380,8 @@ void VideoShotsDataLayer<Dtype>::InsertIntoQueue(const VideoShots& video_shots,
 
   int context_id = 0, start_j = 0;
   int half_context_size = context_size_/2;
+  std::vector<int> video_index_negs;
+  int num_same_video_negs = 0;
   switch (this->layer_param_.video_shots_data_param().context_type()) {
 
     // -------------------- Pairwise only ----------------------
@@ -423,12 +450,33 @@ void VideoShotsDataLayer<Dtype>::InsertIntoQueue(const VideoShots& video_shots,
     // ------------------- Context around the target ---------------------
     case VideoShotsDataParameter_CONTEXT_WINDOW:
       CHECK(context_size_%2 == 0) << "Context size should be even in this setting!";
+      // For negatives
+      video_index_negs.clear();
+      for (int nid = 0; nid < video_shots.shot_words_size(); ++nid) {
+        video_index_negs.push_back(nid);
+      }
+
       for (int i = this->target_ctr_; i < video_shots.shot_words_size(); ++i) {
+
+        // Avoid border cases
+        /*if ( (i - half_context_size) < 0 || (i + half_context_size) >= video_shots.shot_words_size()) {
+          context_id = 0;
+          this->target_ctr_++;
+        }*/
+
         for (int feature_id = 0; feature_id < this->datum_height_; ++feature_id) {
           top_data[item_id*this->datum_channels_*this->datum_height_ + feature_id] =
                    video_shots.shot_words(i).float_data(feature_id);
         }
 
+        /*LOG(INFO) << "Top target --------------------------------> "
+                                          << ":" << top_data[item_id*this->datum_channels_*this->datum_height_ + 1]
+                                          << ":" << top_data[item_id*this->datum_channels_*this->datum_height_ + 10]
+                                          << ":" << top_data[item_id*this->datum_channels_*this->datum_height_+ 100]
+                                          << ":" << top_data[item_id*this->datum_channels_*this->datum_height_ + 500]
+                                          << ":" << top_data[item_id*this->datum_channels_*this->datum_height_ + 2000];
+
+        */
         context_id = 0;
         for (int j = i-half_context_size; j <= (i+half_context_size); ++j) {
           if (i==j) {
@@ -454,6 +502,27 @@ void VideoShotsDataLayer<Dtype>::InsertIntoQueue(const VideoShots& video_shots,
         }
         this->target_ctr_++;
         video_ids_[item_id] = video_shots.video_id();
+
+        // Add same video-negatives
+        num_same_video_negs = 0;
+        if (num_negative_samples_ > 0) {
+          std::random_shuffle(video_index_negs.begin(), video_index_negs.end());
+          for (int nid = 0; (nid < video_shots.shot_words_size())
+                           && (num_same_video_negs < max_same_video_negs_); ++nid) {
+            if (video_index_negs[nid] == i) {
+              continue;
+            }
+            for (int feature_id = 0; feature_id < (this->datum_height_-1); ++feature_id) {
+                          top_data[(item_id*this->datum_channels_ + this->context_size_ + 1 + num_same_video_negs) * this->datum_height_ + feature_id] =
+                            video_shots.shot_words(video_index_negs[nid]).float_data(feature_id);
+
+            }
+            num_same_video_negs++;
+          }
+          neg_added_from_same_video_[item_id] = num_same_video_negs;
+        }
+
+
         item_id++;
         if (item_id >= batch_size_) {
           break;
@@ -572,8 +641,8 @@ void VideoShotsDataLayer<Dtype>::InternalThreadEntry() {
 
     // Main insertion into top-data
     //LOG(INFO) << "Trying to insert video-id: " << video_shots.video_id();
-    InsertIntoQueue(video_shots, top_data, item_id);
     //LOG(INFO) << "Done ...";
+    InsertIntoQueue(video_shots, top_data, item_id);
 
     // go to the next iter
     switch (this->layer_param_.video_shots_data_param().backend()) {
@@ -628,7 +697,7 @@ void VideoShotsDataLayer<Dtype>::InternalThreadEntry() {
       const Dtype* negatives_data = negatives_.cpu_data();
       // Sample the remaining from negatives
       RandomShuffleTopids(num_negative_samples_);
-      for (int negative_id = (this->context_size_ + 1);
+      for (int negative_id = (this->context_size_ + 1 + neg_added_from_same_video_[b]);
           negative_id < (1 + this->context_size_ + num_negative_samples_); ++negative_id) {
         int neg_id = static_cast<int>(this->buffer_ids_[negative_id - context_size_ - 1]);
         for (int feature_id = 0; feature_id < feature_size_; ++feature_id) {
@@ -636,7 +705,13 @@ void VideoShotsDataLayer<Dtype>::InternalThreadEntry() {
           top_data[(b*this->datum_channels_ + negative_id) * this->datum_height_ + feature_id] =
            negatives_data[neg_id*feature_size_ + feature_id];
         }
-        //LOG(INFO) << "neg-id: " << neg_id;
+        /* LOG(INFO) << "neg-id: " << neg_id << ":" << negatives_data[neg_id*feature_size_ + 1]
+                                          << ":" << negatives_data[neg_id*feature_size_ + 10]
+                                          << ":" << negatives_data[neg_id*feature_size_ + 100]
+                                          << ":" << negatives_data[neg_id*feature_size_ + 500]
+                                          << ":" << negatives_data[neg_id*feature_size_ + 2000];
+        */
+
       }
     }
 

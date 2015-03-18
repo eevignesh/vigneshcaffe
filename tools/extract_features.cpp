@@ -18,6 +18,7 @@
 
 using namespace caffe;  // NOLINT(build/namespaces)
 using namespace std;
+using namespace boost;
 
 template<typename Dtype>
 int feature_extraction_pipeline(int argc, char** argv);
@@ -95,7 +96,7 @@ int feature_extraction_pipeline(int argc, char** argv) {
    }
    */
   string feature_extraction_proto(argv[++arg_pos]);
-  shared_ptr<Net<Dtype> > feature_extraction_net(
+  boost::shared_ptr<Net<Dtype> > feature_extraction_net(
       new Net<Dtype>(feature_extraction_proto));
   feature_extraction_net->CopyTrainedLayersFrom(pretrained_binary_proto);
 
@@ -121,8 +122,8 @@ int feature_extraction_pipeline(int argc, char** argv) {
   options.error_if_exists = true;
   options.create_if_missing = true;
   options.write_buffer_size = 268435456;
-  vector<shared_ptr<leveldb::DB> > feature_dbs;
-  vector<shared_ptr<ofstream> >  featfile_texts;
+  vector<boost::shared_ptr<leveldb::DB> > feature_dbs;
+  vector<boost::shared_ptr<ofstream> >  featfile_texts;
   for (size_t i = 0; i < num_features; ++i) {
     LOG(ERROR)<< "Opening leveldb " << leveldb_names[i];
     leveldb::DB* db;
@@ -130,12 +131,12 @@ int feature_extraction_pipeline(int argc, char** argv) {
                                                leveldb_names[i].c_str(),
                                                &db);
     CHECK(status.ok()) << "Failed to open leveldb " << leveldb_names[i];
-    feature_dbs.push_back(shared_ptr<leveldb::DB>(db));
+    feature_dbs.push_back(boost::shared_ptr<leveldb::DB>(db));
     ofstream* featfile = new ofstream((leveldb_names[i] + "/text_output.txt").c_str());
     //featfile->open ((leveldb_names[i] + "/text_output.txt").c_str());
     LOG(ERROR) << "Opened: " << leveldb_names[i] + "/text_output.txt";
     (*featfile) << "#features\n";
-    featfile_texts.push_back(shared_ptr<ofstream>(featfile));
+    featfile_texts.push_back(boost::shared_ptr<ofstream>(featfile));
   }
 
   int num_mini_batches = atoi(argv[++arg_pos]);
@@ -143,9 +144,9 @@ int feature_extraction_pipeline(int argc, char** argv) {
   LOG(ERROR)<< "Extacting Features";
 
   Datum datum;
-  vector<shared_ptr<leveldb::WriteBatch> > feature_batches(
+  vector<boost::shared_ptr<leveldb::WriteBatch> > feature_batches(
       num_features,
-      shared_ptr<leveldb::WriteBatch>(new leveldb::WriteBatch()));
+      boost::shared_ptr<leveldb::WriteBatch>(new leveldb::WriteBatch()));
   const int kMaxKeyStrLength = 100;
   char key_str[kMaxKeyStrLength];
   vector<Blob<float>*> input_vec;
@@ -154,7 +155,7 @@ int feature_extraction_pipeline(int argc, char** argv) {
   for (int batch_index = 0; batch_index < num_mini_batches; ++batch_index) {
     feature_extraction_net->Forward(input_vec);
     for (int i = 0; i < num_features; ++i) {
-      const shared_ptr<Blob<Dtype> > feature_blob = feature_extraction_net
+      const boost::shared_ptr<Blob<Dtype> > feature_blob = feature_extraction_net
           ->blob_by_name(blob_names[i]);
       int batch_size = feature_blob->num();
       int dim_features = feature_blob->count() / batch_size;
