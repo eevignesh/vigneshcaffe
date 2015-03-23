@@ -1,6 +1,6 @@
 import os
 
-tmpfile = '/data2/vigneshr/tmp.txt'
+tmpfile = '/scr/r6/vigneshr/tmp.txt'
 os.system('nvidia-smi > ' + tmpfile)
 lines = open(tmpfile, 'r').read().splitlines()
 
@@ -10,7 +10,7 @@ gpus = [x.split()[1] for x in qq]
 mem = [x.split()[-2] for x in qq]
 
 used = []
-for ix in [3,2,1,0]:
+for ix in [6,5,4,3,2,1,0]:
   li = [i for i in range(len(gpus)) if int(gpus[i]) == ix]
   print 'gpu %d:' %(ix, ) 
   pidi = [pids[i] for i in li]

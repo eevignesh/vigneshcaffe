@@ -10,3 +10,4 @@ Makefile.config
 projects/*
 docs/*
 misc/*
+caffe_utils/*.py

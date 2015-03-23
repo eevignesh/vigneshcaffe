@@ -198,13 +198,13 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
     // We expect one-d features only
     feature_size_ = video_shots.shot_words(0).float_data_size();
     if (this->layer_param_.video_sampled_shots_data_param().context_type() == VideoSampledShotsDataParameter_CONTEXT_PAIRWISE) {
-      context_size_ = 1;
+      context_size_ = 2;
     } else {
       context_size_ = this->layer_param_.video_sampled_shots_data_param().context_size();
     }
     
     CHECK_GE(feature_size_, 1);
-    CHECK_GE(context_size_, 1);
+    CHECK_GE(context_size_, 2);
     batch_size_ = this->layer_param_.video_sampled_shots_data_param().batch_size();
     CHECK_GE(batch_size_, 1);
 
@@ -214,10 +214,10 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
     // We use a small hack: channels = context_size_+1, height = feature_size_
     (*top)[0]->Reshape(
         this->layer_param_.video_sampled_shots_data_param().batch_size(),
-          context_size_+1+num_negative_samples_, // context-features + target featuers + negatives
+          context_size_+num_negative_samples_, // context-features + target featuers + negatives
           feature_size_, 1);
     this->prefetch_data_.Reshape(this->layer_param_.video_sampled_shots_data_param().batch_size(),
-        context_size_+1+num_negative_samples_, feature_size_, 1);
+        context_size_+num_negative_samples_, feature_size_, 1);
 
     LOG(INFO) << "output data size: " << (*top)[0]->num() << ","
         << (*top)[0]->channels() << "," << (*top)[0]->height() << ","
@@ -344,7 +344,7 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
     CHECK_EQ(num_negatives_added, max_buffer_size_) << "Could not add requested number of negatives";
 
     // Output datum size
-    this->datum_channels_ = context_size_ + 1 + num_negative_samples_;
+    this->datum_channels_ = context_size_ + num_negative_samples_;
     this->datum_height_ = feature_size_;
     this->datum_width_ = 1;
     this->datum_size_ = feature_size_ * this->datum_channels_;
@@ -449,6 +449,8 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
         }
       }
 
+      CHECK_EQ(context_id, context_size_-1);
+
       // Set the video-id
       video_id = video_shots.video_id();
       
@@ -476,7 +478,7 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
               (rand_perm_ids[nid] > rand_perm_ids[half_context_size+1])) {
 
             for (int feature_id = 0; feature_id < (this->datum_height_-1); ++feature_id) {
-              top_data[(item_id*this->datum_channels_ + this->context_size_ + 1 + added_negatives)
+              top_data[(item_id*this->datum_channels_ + this->context_size_ + added_negatives)
                         * this->datum_height_ + feature_id] =
                 video_shots.shot_words(rand_perm_ids[nid]).float_data(feature_id);
 
@@ -520,6 +522,8 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
         }
       }
 
+      CHECK_EQ(context_id, context_size_-1);
+
       // Set the video-id
       video_id = video_shots.video_id();
       
@@ -546,7 +550,7 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
           if ((rand_perm_ids[nid] < rand_perm_ids[context_size_-2])) {
 
             for (int feature_id = 0; feature_id < (this->datum_height_-1); ++feature_id) {
-              top_data[(item_id*this->datum_channels_ + this->context_size_ + 1 + added_negatives)
+              top_data[(item_id*this->datum_channels_ + this->context_size_ + added_negatives)
                         * this->datum_height_ + feature_id] =
                 video_shots.shot_words(rand_perm_ids[nid]).float_data(feature_id);
 
@@ -653,10 +657,10 @@ void VideoSampledShotsDataLayer<Dtype>::InternalThreadEntry() {
       const Dtype* negatives_data = negatives_.cpu_data();
       // Sample the remaining from negatives
       RandomShuffleTopids(num_negative_samples_-num_added_negs);
-      for (int negative_id = (this->context_size_ + 1 + num_added_negs);
+      for (int negative_id = (this->context_size_ + num_added_negs);
           negative_id < (1 + this->context_size_ + num_negative_samples_); ++negative_id) {
         int neg_id = static_cast<int>(
-            this->buffer_ids_[negative_id - context_size_ - 1 - num_added_negs]);
+            this->buffer_ids_[negative_id - context_size_ - num_added_negs]);
         for (int feature_id = 0; feature_id < feature_size_; ++feature_id) {
 
           top_data[(item_id*this->datum_channels_ + negative_id) * this->datum_height_ + feature_id] =
