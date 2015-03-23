@@ -380,6 +380,8 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
   video_added = false;
   int half_context_size = context_size_/2;
   int context_id = 0;
+  string ned_id_string = "";
+
   // If only one frame ... continue
   if (video_shots.shot_words_size() < 2) {
     return;
@@ -451,6 +453,13 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
 
       CHECK_EQ(context_id, context_size_-1);
 
+
+      /*LOG(INFO) << "Sampled context: " << rand_perm_ids[0]
+                << ":" << rand_perm_ids[1]
+                << ":" << rand_perm_ids[2]
+                << ":" << rand_perm_ids[3]
+                << ":" << rand_perm_ids[4];*/
+
       // Set the video-id
       video_id = video_shots.video_id();
       
@@ -462,8 +471,8 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
         << ":" << top_data[item_id*this->datum_channels_*this->datum_height_ + 500]
         << ":" << top_data[item_id*this->datum_channels_*this->datum_height_ + 2000];
       */
-
-
+      
+      //LOG(INFO) << "NEGINFO: " << context_size_ << ":" << video_shots.shot_words_size() << ":" << added_negatives << ":" << max_same_video_negs_;
 
       // Add same video-negatives
       if ((num_negative_samples_ > 0) &&
@@ -474,8 +483,10 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
         for (int nid = context_size_; (nid < video_shots.shot_words_size())
                          && (added_negatives < max_same_video_negs_); ++nid) {
 
-          if ((rand_perm_ids[nid] < rand_perm_ids[half_context_size-1]) &&
-              (rand_perm_ids[nid] > rand_perm_ids[half_context_size+1])) {
+          //LOG(INFO) << "NEG: " << rand_perm_ids[nid] <<  " : " << rand_perm_ids[half_context_size-1]
+          //  << " : " << rand_perm_ids[half_context_size+1];
+          if ((rand_perm_ids[nid] < rand_perm_ids[half_context_size-1]) || 
+                   (rand_perm_ids[nid] > rand_perm_ids[half_context_size+1])) {
 
             for (int feature_id = 0; feature_id < (this->datum_height_-1); ++feature_id) {
               top_data[(item_id*this->datum_channels_ + this->context_size_ + added_negatives)
@@ -483,11 +494,14 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
                 video_shots.shot_words(rand_perm_ids[nid]).float_data(feature_id);
 
             }
+
+            //ned_id_string += stringprintf(":%d", rand_perm_ids[nid]);
             added_negatives++;
           }
         }
       }
 
+      //LOG(INFO) << "Sampled negs: " << ned_id_string << " added-negs: " << added_negatives;
 
       break;
 
@@ -539,14 +553,14 @@ inline void VideoSampledShotsDataLayer<Dtype>::RandomShuffleTopids(int n) {
 
 
       // Add same video-negatives
+      //LOG(INFO) << "NEGINFO: " << context_size_ << ":" << video_shots.shot_words_size() << ":" << added_negatives << ":" << max_same_video_negs_;
+
       if ((num_negative_samples_ > 0) &&
           (video_shots.shot_words_size() > context_size_)) {
 
         std::random_shuffle(rand_perm_ids.begin()+context_size_, rand_perm_ids.end());
-
         for (int nid = context_size_; (nid < video_shots.shot_words_size())
                          && (added_negatives < max_same_video_negs_); ++nid) {
-
           if ((rand_perm_ids[nid] < rand_perm_ids[context_size_-2])) {
 
             for (int feature_id = 0; feature_id < (this->datum_height_-1); ++feature_id) {
