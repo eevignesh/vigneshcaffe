@@ -232,7 +232,7 @@ message LayerParameter {
   // line above the enum. Update the next available ID when you add a new
   // LayerType.
   //
-  // LayerType next available ID: 47 (last added: VIDEO_SHOTS_DATA)
+  // LayerType next available ID: 50 (last added: VIDEO_SAMPLED_SHOTS__DATA)
   enum LayerType {
     // "NONE" layer type is 0th enum element so that we don't cause confusion
     // by defaulting to an existent LayerType (instead, should usually error if
@@ -270,6 +270,7 @@ message LayerParameter {
     POOLING = 17;
     POWER = 26;
     RELU = 18;
+    RETRIEVAL_RANK_STATS = 47;
     RETRIEVAL_STATS = 45;
     SIGMOID = 19;
     SIGMOID_CROSS_ENTROPY_LOSS = 27;
@@ -280,6 +281,8 @@ message LayerParameter {
     SLICE = 33;
     SUM = 44;
     TANH = 23;
+    VIDEO_SAMPLED_SHOTS_DATA = 49;
+    VIDEO_SHOT_WINDOW_TEST_DATA = 48;
     VIDEO_SHOT_WINDOW_DATA = 40;
     VIDEO_SHOTS_DATA = 46;
     WINDOW_DATA = 24;
@@ -312,7 +315,7 @@ message LayerParameter {
   // to each top blob.
   repeated float loss_weight = 35;
 
-  // next available id = 49
+  // next available id = 52
   optional AccuracyParameter accuracy_param = 27;
   optional ArgMaxParameter argmax_param = 23;
   optional ClassificationStatsParameter classification_stats_param = 42;
@@ -338,13 +341,16 @@ message LayerParameter {
   optional PoolingParameter pooling_param = 19;
   optional PowerParameter power_param = 21;
   optional ReLUParameter relu_param = 30;
+  optional RetrievalRankStatsParameter retrieval_rank_stats_param = 49;
   optional RetrievalStatsParameter retrieval_stats_param = 47;
   optional SigmoidParameter sigmoid_param = 38;
   optional SoftmaxParameter softmax_param = 39;
   optional SliceParameter slice_param = 31;
   optional SumParameter sum_param = 46;
   optional TanHParameter tanh_param = 37;
+  optional VideoShotWindowTestDataParameter video_shot_window_test_data_param = 50;
   optional ThresholdParameter threshold_param = 25;
+  optional VideoSampledShotsDataParameter video_sampled_shots_data_param = 51;
   optional VideoShotsDataParameter video_shots_data_param = 48;
   optional VideoShotWindowDataParameter video_shot_window_data_param = 43;
   optional WindowDataParameter window_data_param = 20;
@@ -507,6 +513,84 @@ message VideoShotWindowDataParameter {
   // Do we display all ids
   optional bool display_all_ids = 13 [default = false];
 
+}
+
+message VideoShotWindowTestDataParameter {
+  enum DB {
+    LEVELDB = 0;
+    LMDB = 1;
+  }
+  // Specify the data source.
+  optional string source = 1;
+
+  // Specify the batch size.
+  optional uint32 batch_size = 4;
+ 
+  // If backend is video id text, then only the video id is output
+  optional DB backend = 8 [default = LEVELDB];
+
+  // Do we display all ids
+  optional bool display_all_ids = 13 [default = false];
+
+}
+
+// Message that stores parameters used by VideoSampledShotWindowDataLayer
+message VideoSampledShotsDataParameter {
+  enum DB {
+    LEVELDB = 0;
+    LMDB = 1;
+  }
+  // Specify the data source.
+  optional string source = 1;
+
+  // Should we output the video-id also as an additional label
+  //optional bool only_video_id_from_text_file = 2 [default = false];
+
+  // Specify the batch size.
+  optional uint32 batch_size = 4;
+  // The rand_skip variable is for the data layer to skip a few data points
+  // to avoid all asynchronous sgd clients to start at the same point. The skip
+  // point would be set as rand_skip * rand(0,1). Note that rand_skip should not
+  // be larger than the number of keys in the leveldb.
+  optional uint32 rand_skip = 7 [default = 0];
+
+  // If backend is video id text, then only the video id is output
+  optional DB backend = 8 [default = LEVELDB];
+
+  // Number of negative samples needed
+  optional uint32 num_negative_samples = 9 [default = 0];
+
+  // Maximum buffer size for holding negatives
+  optional uint32 max_buffer_size = 10 [default = 0];
+
+  // The percentage probaility of swapping out an element in bufer
+  // with a new one [should be in range 0-100]
+  optional uint32 negative_swap_percentage = 11 [default = 0];
+
+  // If you need to use a separate set of negatives, set them here
+  optional string negative_dataset = 12 [default = ""];
+
+  // The type of context that is used
+  enum CONTEXT {
+    PAIRWISE = 0; // all pairs of shots in a video
+    WINDOW = 1; // a window of context around the shot
+    PAST = 2; // only past few shots  
+  }
+
+  optional CONTEXT context_type = 14 [default = PAIRWISE];
+
+  // The context size to use. Should be event if type is WINDOW.
+  optional uint32 context_size = 15 [default = 1];
+
+  // Only useful for pairwise
+  optional bool output_shot_distance = 16 [default = false];
+
+  // Only useful for pairwise
+  optional float max_shot_distance = 17 [default = 5.0];
+
+
+  // maximum number of negs from same video
+  optional uint32 max_same_video_negs = 18 [default = 0];
 }
 
 // Message that stores parameters used by VideoShotWindowDataLayer
@@ -788,6 +872,18 @@ message ReLUParameter {
     CUDNN = 2;
   }
   optional Engine engine = 2 [default = DEFAULT];
+}
+
+message RetrievalRankStatsParameter {
+  optional string stats_output_file = 1 [default = ""];
+
+  //TODO: implement functionality
+  optional bool exclude_same_video_shots = 2 [default = false];
+
+  optional bool compute_ap = 3 [default = false];
+
+  optional int32 positive_size = 4 [default = 0];
+  optional int32 negative_size = 5 [default = 0];
 }
 
 message RetrievalStatsParameter {

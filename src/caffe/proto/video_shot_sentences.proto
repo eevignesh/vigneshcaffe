@@ -19,6 +19,15 @@ message VideoShots {
   optional string video_name = 4; // name of the video
 }
 
+message TestVideoShotWindows {
+  optional int32 video_id = 1; // Video id required for paragraph models
+  repeated int32 positive_shot_id = 2; // shot id of the positive word
+  optional string video_name = 3; // Name of the video file
+  repeated caffe.Datum positive_shot_words = 4; // The target shots which is to be predicted
+  repeated caffe.Datum context_shot_words = 5; // The shot words which are in the context
+  repeated caffe.Datum negative_shot_words = 6; // Negatives from same video
+  repeated int32 negative_shot_id = 7; // shot id of the negative word
+}
 
 //message VideoShotWindow {
 //  optional int32 video_id = 1;

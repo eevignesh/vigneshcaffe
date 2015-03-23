@@ -243,6 +243,8 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return new PowerLayer<Dtype>(param);
   case LayerParameter_LayerType_RELU:
     return GetReLULayer<Dtype>(name, param);
+  case LayerParameter_LayerType_RETRIEVAL_RANK_STATS:
+    return new RetrievalRankStatsLayer<Dtype>(param);
   case LayerParameter_LayerType_RETRIEVAL_STATS:
     return new RetrievalStatsLayer<Dtype>(param);
   case LayerParameter_LayerType_SILENCE:
@@ -263,6 +265,10 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return new SumLayer<Dtype>(param);
   case LayerParameter_LayerType_TANH:
     return GetTanHLayer<Dtype>(name, param);
+  case LayerParameter_LayerType_VIDEO_SAMPLED_SHOTS_DATA:
+    return new VideoSampledShotsDataLayer<Dtype>(param);
+  case LayerParameter_LayerType_VIDEO_SHOT_WINDOW_TEST_DATA:
+    return new VideoShotWindowTestDataLayer<Dtype>(param);
   case LayerParameter_LayerType_WINDOW_DATA:
     return new WindowDataLayer<Dtype>(param);
   case LayerParameter_LayerType_VIDEO_SHOTS_DATA:

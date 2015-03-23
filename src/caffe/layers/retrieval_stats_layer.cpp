@@ -110,7 +110,7 @@ void RetrievalStatsLayer<Dtype>:: ComputeStats(const Dtype* video_ids, const vec
   int current_class_id = video_id_to_class_[current_video_id];
   //vector<int> precisions;
   // Note, the first shot is always excluded ... since it is the same shot
-  for (int i = 0; i < sort_ids.size(); ++i) {
+  for (int i = 1; i < sort_ids.size(); ++i) {
     if ( (static_cast<int>(video_ids[sort_ids[i]]) != current_video_id) ||
         !this->exclude_same_video_shots_) {
       val++;
@@ -133,7 +133,6 @@ void RetrievalStatsLayer<Dtype>:: ComputeStats(const Dtype* video_ids, const vec
   }
 
   acc_5 /= 5;
-
   /*string precision_string = "";
   for (int i = 0; i < precisions.size(); ++i) {
     precision_string += stringprintf("%d:", precisions[i]);
@@ -236,7 +235,7 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
         distance_matrix_.offset(i, 0, 0, 0));
     std::sort(sort_ids.begin(), sort_ids.end(), sbd);
     
-    //CHECK_EQ(sort_ids[0], i);
+    CHECK_EQ(sort_ids[0], i);
     
     int sample_label = -100;
 
@@ -254,7 +253,7 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 
 
     // TODO: Remove later ... only for debugging now
-    if (!this->layer_param_.retrieval_stats_param().video_level_retrieval()) {
+    /*if (!this->layer_param_.retrieval_stats_param().video_level_retrieval()) {
       for (int samp = 0; samp < num_samples; ++samp)  {
         if (samp == i) {
           continue;
@@ -283,7 +282,7 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
             num_intra_class[sample_label-1]++;
           }
       }  
-    }
+    }*/
 
     // -------------------------- Don't compute mAP for samples with labels < 0 -----------------------
 
@@ -300,8 +299,8 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       mean_acc_1 += acc_1;
       mean_acc_5 += acc_5;
       num_positives++;
-      ap_per_class[sample_label-1] += ap;
-      num_samples_per_class[sample_label-1]++;
+      //ap_per_class[sample_label-1] += ap;
+      //num_samples_per_class[sample_label-1]++;
     }
 
     if (stats_output_file_ != "" && sample_label >= 0) {
@@ -339,11 +338,11 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     }
   }
 
-  for (int cid = 0; cid < FLAGS_num_classes; ++cid) {
+  /*for (int cid = 0; cid < FLAGS_num_classes; ++cid) {
     LOG(INFO) << "class: " << cid+1 << ":inter:" << inter_class_distance[cid]/num_inter_class[cid];
     LOG(INFO) << "class: " << cid+1 << ":intra:" << intra_class_distance[cid]/num_intra_class[cid];
     LOG(INFO) << "class: " << cid+1 << ":AP:" << ap_per_class[cid]/num_samples_per_class[cid];
-  }
+  }*/
 
   if (stats_output_file_ != "") {
     stats_output.close();

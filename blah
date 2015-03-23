@@ -116,19 +116,56 @@ I0309 14:54:10.346051 14006 solver.cpp:313]     Test net output #1: test_hit_at_
 I0309 14:54:10.346083 14006 solver.cpp:313]     Test net output #2: test_map = 0.211093
 
 # --------- fc7
-I0308 20:47:58.055793 32697 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.435908
-I0308 20:47:58.055892 32697 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.414871
-I0308 20:47:58.055922 32697 solver.cpp:313]     Test net output #2: test_map = 0.193589
+#I0308 20:47:58.055793 32697 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.435908
+#3I0308 20:47:58.055892 32697 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.414871
+#I0308 20:47:58.055922 32697 solver.cpp:313]     Test net output #2: test_map = 0.193589
+
+I0319 04:27:37.281817  4768 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.433022
+I0319 04:27:37.282157  4768 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.410925
+I0319 04:27:37.282202  4768 solver.cpp:313]     Test net output #2: test_map = 0.197024
+
 
 # our exemplars full 9 ret lr=0.001, nosquare id, 500 buffer, 99 replacement, dropout = 0.9, 82k iterations
 I0313 02:22:41.297361 24350 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.438344
 I0313 02:22:41.297667 24350 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.416063
 I0313 02:22:41.297683 24350 solver.cpp:313]     Test net output #2: test_map = 0.217099
 
+# our tibet2 (cont2)
+I0318 22:36:13.383893 25824 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.438308
+I0318 22:36:13.383975 25824 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.417332
+I0318 22:36:13.384042 25824 solver.cpp:313]     Test net output #2: test_map = 0.219758
+
+# our tibet3 (cont3)
+I0318 23:39:22.416564 27116 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.438203
+I0318 23:39:22.416591 27116 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.419059
+I0318 23:39:22.416607 27116 solver.cpp:313]     Test net output #2: test_map = 0.220925
+
+# cont3 (100k)
+I0319 15:35:54.140182 14124 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.438767
+I0319 15:35:54.158532 14124 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.421914
+I0319 15:35:54.158608 14124 solver.cpp:313]     Test net output #2: test_map = 0.217102
+ 
+# cont3 (200k)
+I0319 14:40:37.453162 13021 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.436863
+I0319 14:40:37.516698 13021 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.421477
+I0319 14:40:37.516741 13021 solver.cpp:313]     Test net output #2: test_map = 0.214971
+
+
+# our tibet2 (cont5)
+I0319 00:23:11.453646 27965 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.439119
+I0319 00:23:11.453696 27965 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.420913
+I0319 00:23:11.453740 27965 solver.cpp:313]     Test net output #2: test_map = 0.219859
+
+
 # ------------ fc7 (video) ------------
-I0308 22:56:10.411021  6802 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.45858
-I0308 22:56:10.411360  6802 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.416174
-I0308 22:56:10.411411  6802 solver.cpp:313]     Test net output #2: test_map = 0.215512
+# (Old bad results :( )
+#I0308 22:56:10.411021  6802 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.45858
+#I0308 22:56:10.411360  6802 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.416174
+#I0308 22:56:10.411411  6802 solver.cpp:313]     Test net output #2: test_map = 0.215512
+
+I0319 04:06:17.013226  4474 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.484221
+I0319 04:06:17.013303  4474 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.427416
+I0319 04:06:17.013320  4474 solver.cpp:313]     Test net output #2: test_map = 0.227466
 
 # our exemplars full 7 16k
 I0309 14:40:10.540415  2458 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.467456
@@ -140,6 +177,20 @@ I0313 01:56:45.351107 18707 solver.cpp:313]     Test net output #0: test_hit_at_
 I0313 01:56:45.351171 18707 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.424359
 I0313 01:56:45.351193 18707 solver.cpp:313]     Test net output #2: test_map = 0.236862
 
+# our tibet2 (cont2)
+I0318 22:04:47.524878 25689 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.465483
+I0318 22:04:47.524960 25689 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.423077
+I0318 22:04:47.524989 25689 solver.cpp:313]     Test net output #2: test_map = 0.234592
+
+# our tibet2 (cont3)
+I0318 22:49:10.690356 26814 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.470907
+I0318 22:49:10.690397 26814 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.430868
+I0318 22:49:10.690409 26814 solver.cpp:313]     Test net output #2: test_map = 0.240247
+
+# our tibet2 (cont5)
+I0318 23:55:24.855778 27857 solver.cpp:313]     Test net output #0: test_hit_at_1 = 0.475838
+I0318 23:55:24.855828 27857 solver.cpp:313]     Test net output #1: test_hit_at_5 = 0.43432
+I0318 23:55:24.855854 27857 solver.cpp:313]     Test net output #2: test_map = 0.242828
 
 # -------------------------- Test event kits + distractors ----------------
 # (Video) fc7

@@ -1,0 +1,17 @@
+# -------------------------------------
+16k shots 40 max per video full event kits
+# -------------------------------------
+(fc7)
+I0320 16:50:22.141520 26237 solver.cpp:313]     Test net output #0: test_med_rank = 28
+I0320 16:50:22.164729 26237 solver.cpp:313]     Test net output #1: test_recall_at_1 = 0.0147831
+I0320 16:50:22.164764 26237 solver.cpp:313]     Test net output #2: test_recall_at_10 = 0.360828
+I0320 16:50:22.164779 26237 solver.cpp:313]     Test net output #3: test_recall_at_5 = 0.227478
+
+
+(62k model)
+I0320 16:57:13.690347 26463 solver.cpp:313]     Test net output #0: test_med_rank = 30
+I0320 16:57:13.706244 26463 solver.cpp:313]     Test net output #1: test_recall_at_1 = 0.0144814
+I0320 16:57:13.706292 26463 solver.cpp:313]     Test net output #2: test_recall_at_10 = 0.352441
+I0320 16:57:13.706325 26463 solver.cpp:313]     Test net output #3: test_recall_at_5 = 0.227237
+I0320 16:57:13.706634 26463 solver.cpp:239] Optimization Done.
+
