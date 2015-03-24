@@ -7,7 +7,7 @@ import sys
 
 FLAGS = gflags.FLAGS
 
-gflags.DEFINE_string('train_log_file', '/scr/r6/vigneshr/vigneshcaffe/projects/med_embedding_sampled_skipgram/train_mednet_samp_skipg_1_4096_ret_log_dir/caffe.bin.INFO', 'the training log file')
+gflags.DEFINE_string('train_log_file', '/scr/r6/vigneshr/vigneshcaffe/projects/med_embedding_sampled_skipgram/train_mednet_samp_noskipg_4_4096_ret_log_dir/caffe.bin.INFO', 'the training log file')
 gflags.DEFINE_string('output_plot_dir', '/afs/cs.stanford.edu/u/vigneshr/www/misc/mednet_samp_skipg_tib2/', 'output plot file to which all the plots will be saved')
 gflags.DEFINE_integer('test_interval', 50, 'test is run per these many training iterations')
 gflags.DEFINE_string('stats_key_words', 'class: 1:inter:,class: 1:intra:,class: 1:AP:,Test net output #2: test_map = ',#,Test net output #0: test_hit_at_1,Test net output #0: loss_output_svm',  #'Train net output #0: loss,Test net output #10: average_accuracy, lr',

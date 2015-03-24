@@ -39,7 +39,7 @@ class RetrievalRankStatsLayer : public Layer<Dtype> {
   }
 
   virtual inline int ExactNumBottomBlobs() const { return 2; }
-  virtual inline int ExactNumTopBlobs() const { return 4; }
+  virtual inline int ExactNumTopBlobs() const { return 5; }
 
  protected:
   /**
@@ -72,7 +72,7 @@ class RetrievalRankStatsLayer : public Layer<Dtype> {
   }
   
   void ComputeApStats(const vector<int>& sort_ids, double& ap, double& rec_1,
-    double& rec_5, double& rec_10, const int current_item_id);
+    double& rec_5, double& rec_10, int& rank, const int current_item_id);
 
   void ComputeRankStats(const vector<int>& sort_ids, int& rank, double& rec_1,
     double& rec_5, double& rec_10, const int current_item_id);

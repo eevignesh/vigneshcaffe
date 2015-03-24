@@ -93,15 +93,15 @@ void VideoShotWindowTestDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype
 
 
   // We expect one-d fetures only
-  CHECK_GE(test_shot_windows.positive_shot_words_size(), 1);
-  CHECK_GE(test_shot_windows.negative_shot_words_size(), 1);
+  //CHECK_GE(test_shot_windows.positive_shot_words_size(), 1);
+  //CHECK_GE(test_shot_windows.negative_shot_words_size(), 1);
   positive_size_ = test_shot_windows.positive_shot_words_size();
   negative_size_ = test_shot_windows.negative_shot_words_size();
 
   LOG(INFO) << "Pos-size: " << positive_size_
             << "Neg-size: " << negative_size_;
 
-  feature_size_ = test_shot_windows.positive_shot_words(0).float_data_size();
+  feature_size_ = test_shot_windows.context_shot_words(0).float_data_size();
   context_size_ = test_shot_windows.context_shot_words_size();
   CHECK_GE(feature_size_, 1);
   CHECK_GE(context_size_, 1); // need atleast a context of two words

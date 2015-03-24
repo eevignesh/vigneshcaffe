@@ -11,3 +11,4 @@ projects/*
 docs/*
 misc/*
 caffe_utils/*.py
+blah*

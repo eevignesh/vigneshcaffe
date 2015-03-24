@@ -58,6 +58,8 @@ void RetrievalRankStatsLayer<Dtype>::Reshape(
   (*top)[1]->Reshape(1, 1, 1, 1); // recall@1
   (*top)[2]->Reshape(1, 1, 1, 1); // recall@5
   (*top)[3]->Reshape(1, 1, 1, 1); // recall@10
+  (*top)[4]->Reshape(1, 1, 1, 1); // Mean AP
+
 }
 
 template <typename Dtype>
@@ -128,14 +130,21 @@ int RetrievalRankStatsLayer<Dtype>::GetVideoId(int item_id) {
 template <typename Dtype>
 void RetrievalRankStatsLayer<Dtype>::ComputeApStats(const vector<int>& sort_ids,
     double& ap, double& acc_1,
-    double& acc_5, double& acc_10, const int current_video_id) {
+    double& acc_5, double& acc_10,
+    int& best_rank, const int current_video_id) {
   ap = 0; acc_1 = 0; acc_5 = 0; acc_10 = 0;
   double val = 0, ret = 0;
+  best_rank = 10000;
   //vector<int> precisions;
   // Note, the first shot is always excluded ... since it is the same shot
   for (int i = 0; i < sort_ids.size(); ++i) {
     val++;
     if (GetVideoId(sort_ids[i]) == current_video_id) {
+
+      if (val < best_rank) {
+        best_rank = val;
+      }
+
       if (val <= 1) {
         acc_1++;
       }
@@ -224,8 +233,9 @@ void RetrievalRankStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bot
     //LOG(INFO) << "Id: " << i << " ==> " << sort_id_string;
 
     if (this->layer_param_.retrieval_rank_stats_param().compute_ap()) {
-      ComputeApStats(sort_ids, ap, rec_1, rec_5, rec_10, i);
+      ComputeApStats(sort_ids, ap, rec_1, rec_5, rec_10, rank, i);
       mean_ap += ap;
+      all_ranks.push_back(rank);
     } else {
       ComputeRankStats(sort_ids, rank, rec_1, rec_5, rec_10, i);
       all_ranks.push_back(rank);
@@ -275,22 +285,26 @@ void RetrievalRankStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bot
     stats_output.close();
   }
 
-  if (!this->layer_param_.retrieval_rank_stats_param().compute_ap()) {
-    double median_rank = -1.0;
-    std::sort(all_ranks.begin(), all_ranks.end());
-    if (num_samples % 2 == 0) {
-      median_rank = (double) (all_ranks[num_samples/2 -1] + all_ranks[num_samples/2] )/2.0;
-    } else {
-      median_rank = (double) (all_ranks[num_samples/2]);
-    }
-    (*top)[0]->mutable_cpu_data()[0] = Dtype(median_rank);
+  double median_rank = -1.0;
+  std::sort(all_ranks.begin(), all_ranks.end());
+  if (num_samples % 2 == 0) {
+    median_rank = (double) (all_ranks[num_samples/2 -1] + all_ranks[num_samples/2] )/2.0;
   } else {
-    (*top)[0]->mutable_cpu_data()[0] = Dtype(mean_ap/num_samples);
+    median_rank = (double) (all_ranks[num_samples/2]);
+  }
+
+  (*top)[0]->mutable_cpu_data()[0] = Dtype(median_rank);
+    
+  if (this->layer_param_.retrieval_rank_stats_param().compute_ap()) {
+    (*top)[4]->mutable_cpu_data()[0] = Dtype(mean_ap/num_samples);
+  } else {
+    (*top)[4]->mutable_cpu_data()[0] = Dtype(0);
   }
 
   (*top)[1]->mutable_cpu_data()[0] = Dtype(mean_recall_1/num_samples);
   (*top)[2]->mutable_cpu_data()[0] = Dtype(mean_recall_5/num_samples);
   (*top)[3]->mutable_cpu_data()[0] = Dtype(mean_recall_10/num_samples);
+
   // This layer should not be used as a loss function.
 }
 

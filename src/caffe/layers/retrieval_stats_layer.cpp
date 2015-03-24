@@ -229,7 +229,7 @@ void RetrievalStatsLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 
 
     Dtype* same_val = distance_matrix_.mutable_cpu_data() + distance_matrix_.offset(i,i,0,0);
-    same_val[0] = -1e5; // set the diagonal to a very small value
+    same_val[0] = -1e15; // set the diagonal to a very small value
 
     SortByDistance<Dtype> sbd(distance_matrix_.cpu_data() +
         distance_matrix_.offset(i, 0, 0, 0));
