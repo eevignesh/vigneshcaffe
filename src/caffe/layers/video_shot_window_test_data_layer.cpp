@@ -98,6 +98,14 @@ void VideoShotWindowTestDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype
   positive_size_ = test_shot_windows.positive_shot_words_size();
   negative_size_ = test_shot_windows.negative_shot_words_size();
 
+  if (!this->layer_param_.video_shot_window_test_data_param().include_positives()) {
+    positive_size_ = 0;
+  }
+
+  if (!this->layer_param_.video_shot_window_test_data_param().include_negatives()) {
+    negative_size_ = 0;
+  }
+
   LOG(INFO) << "Pos-size: " << positive_size_
             << "Neg-size: " << negative_size_;
 
@@ -179,10 +187,18 @@ void VideoShotWindowTestDataLayer<Dtype>::InternalThreadEntry() {
     // Check to ensure that the shot window is valid
     CHECK(test_shot_windows.has_video_id()) << "No video id found for shot window";
 
-    CHECK_EQ(test_shot_windows.positive_shot_id_size(), positive_size_);
+    if (this->layer_param_.video_shot_window_test_data_param().include_positives()) {
+      CHECK_EQ(test_shot_windows.positive_shot_id_size(), positive_size_);
+    }
     CHECK_EQ(test_shot_windows.context_shot_words_size(), context_size_);
-    CHECK_EQ(test_shot_windows.positive_shot_words_size(), positive_size_);
-    CHECK_EQ(test_shot_windows.negative_shot_words_size(), negative_size_);
+    
+    if (this->layer_param_.video_shot_window_test_data_param().include_positives()) {
+      CHECK_EQ(test_shot_windows.positive_shot_words_size(), positive_size_);
+    }
+    
+    if (this->layer_param_.video_shot_window_test_data_param().include_negatives()) {
+      CHECK_EQ(test_shot_windows.negative_shot_words_size(), negative_size_);
+    }
 
 
  
@@ -203,8 +219,7 @@ void VideoShotWindowTestDataLayer<Dtype>::InternalThreadEntry() {
              test_shot_windows.positive_shot_words(posid-context_size_).float_data(feature_id);
       }
     }
-
-
+    
     // Output the negative data to the next channels blob
     for (int negid = positive_size_ + context_size_;
         negid < (context_size_ + positive_size_ + negative_size_); ++negid) {

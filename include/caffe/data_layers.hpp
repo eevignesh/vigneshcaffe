@@ -24,6 +24,7 @@ namespace caffe {
 #define HDF5_DATA_DATASET_NAME "data"
 #define HDF5_DATA_LABEL_NAME "label"
 
+
 /**
  * @brief Provides base for data layers that feed blobs to the Net.
  *
@@ -126,6 +127,48 @@ class DataLayer : public BasePrefetchingDataLayer<Dtype> {
   MDB_val mdb_key_, mdb_value_;
 };
 
+
+/**
+ * @brief Provides data to the Net from memory.
+ *
+ * TODO(dox): thorough documentation for Forward and proto params.
+ */
+template <typename Dtype>
+class FixedVideoShotTestDataLayer : public BaseDataLayer<Dtype> {
+ public:
+  explicit FixedVideoShotTestDataLayer(const LayerParameter& param)
+      : BaseDataLayer<Dtype>(param) {}
+  virtual void DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+  virtual inline LayerParameter_LayerType type() const {
+    return LayerParameter_LayerType_FIXED_VIDEO_SHOT_TEST_DATA;
+  }
+  virtual inline int ExactNumBottomBlobs() const { return 0; }
+  virtual inline int ExactNumTopBlobs() const { return 2; }
+
+  int batch_size() { return batch_size_; }
+
+ protected:
+  virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+  int batch_size_;
+  Dtype* data_;
+  Dtype* labels_;
+  Blob<Dtype> added_data_;
+  Blob<Dtype> added_labels_;
+
+  // LMDB
+  MDB_env* mdb_env_;
+  MDB_dbi mdb_dbi_;
+  MDB_txn* mdb_txn_;
+  MDB_cursor* mdb_cursor_;
+  MDB_val mdb_key_, mdb_value_;
+
+};
+
+
 /**
  * @brief Reads and provides video shot windows to the net.
  *
@@ -142,7 +185,7 @@ class VideoShotWindowTestDataLayer : public BasePrefetchingDataLayer<Dtype> {
       vector<Blob<Dtype>*>* top);
 
   virtual inline LayerParameter_LayerType type() const {
-    return LayerParameter_LayerType_DATA;
+    return LayerParameter_LayerType_VIDEO_SHOT_WINDOW_TEST_DATA;
   }
 
   virtual inline int ExactNumBottomBlobs() const { return 0; }
@@ -185,7 +228,7 @@ class VideoSampledShotsDataLayer : public BasePrefetchingDataLayer<Dtype> {
       vector<Blob<Dtype>*>* top);
 
   virtual inline LayerParameter_LayerType type() const {
-    return LayerParameter_LayerType_DATA;
+    return LayerParameter_LayerType_VIDEO_SAMPLED_SHOTS_DATA;
   }
 
   virtual inline int AddToBuffer(const Datum data);
@@ -260,7 +303,7 @@ class VideoShotsDataLayer : public BasePrefetchingDataLayer<Dtype> {
       vector<Blob<Dtype>*>* top);
 
   virtual inline LayerParameter_LayerType type() const {
-    return LayerParameter_LayerType_DATA;
+    return LayerParameter_LayerType_VIDEO_SHOTS_DATA;
   }
 
   virtual inline int AddToBuffer(const Datum data);
@@ -339,7 +382,7 @@ class VideoShotWindowDataLayer : public BasePrefetchingDataLayer<Dtype> {
       vector<Blob<Dtype>*>* top);
 
   virtual inline LayerParameter_LayerType type() const {
-    return LayerParameter_LayerType_DATA;
+    return LayerParameter_LayerType_VIDEO_SHOT_WINDOW_DATA;
   }
 
   virtual inline int AddToBuffer(const Datum data);

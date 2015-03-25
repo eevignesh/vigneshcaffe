@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 #include "boost/unordered_map.hpp"
+#include "lmdb.h"
 
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
@@ -22,6 +23,94 @@ const float kLOG_THRESHOLD = 1e-20;
  * 2. recall@1
  * 3. recall@5
  * 4. recall@10
+ * 5. mean ap
+ */
+template <typename Dtype>
+class RetrievalRankStatsFixedRefLayer : public Layer<Dtype> {
+ public:
+
+  explicit RetrievalRankStatsFixedRefLayer(const LayerParameter& param)
+      : Layer<Dtype>(param) {}
+  virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+  virtual inline LayerParameter_LayerType type() const {
+    return LayerParameter_LayerType_RETRIEVAL_RANK_STATS_FIXED_REF;
+  }
+
+  virtual inline int ExactNumBottomBlobs() const { return 4; }
+  virtual inline int ExactNumTopBlobs() const { return 5; }
+
+ protected:
+  /**
+   * @param bottom input Blob vector (length 2)
+   *   -# @f$ (N \times C \times H \times W) @f$
+   *      the target vectors which need to be retrieved @f$ N @f$
+   *   -# @f$ (N \times C \times H \times W) @f$
+   *      the context vectors which are used (dot-product) to do retrieval @f$ N @f$
+   * @param top output Blob vector (length 3), add more if needed
+   * for now we have only the following:
+   *   -# @f$ (1 \times 1 \times 1 \times 1) @f$
+   *      the computed median rank
+   *   -# @f$ (1 \times 1 \times 1 \times 1) @f$
+   *      the computed recall@1
+   *   -# @f$ (1 \times 1 \times 1 \times 1) @f$
+   *      the computed recall@5  
+   *   -# @f$ (1 \times 1 \times 1 \times 1) @f$
+   *      the computed recall@10
+   */
+  virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+
+  /// @brief Not implemented -- ClassificationStatsLayer cannot be used as a loss.
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom) {
+    for (int i = 0; i < propagate_down.size(); ++i) {
+      if (propagate_down[i]) { NOT_IMPLEMENTED; }
+    }
+  }
+  
+  void ComputeApStats(const vector<int>& sort_ids, double& ap, double& rec_1,
+    double& rec_5, double& rec_10, int& rank, const int current_item_id,
+    const Dtype* reference_ids);
+
+
+  int batch_size_;
+  int feature_dimension_;
+  int num_reference_points_;
+  string stats_output_file_;
+
+  // LMDB
+  MDB_env* mdb_env_;
+  MDB_dbi mdb_dbi_;
+  MDB_txn* mdb_txn_;
+  MDB_cursor* mdb_cursor_;
+  MDB_val mdb_key_, mdb_value_;
+
+
+  Blob<Dtype> distance_matrix_;
+  Blob<Dtype> fixed_reference_features_;
+  //vector<int> reference_video_ids_;
+
+  // temporary matrices for normalization
+  /*Blob<Dtype> sum_vector_;
+  Blob<Dtype> sum_square_;
+  Blob<Dtype> temp_matrix_;*/
+};
+
+
+
+
+/**
+ * @brief Computes the retrieval ranking stats for the given batch:
+ * 1. median rank within batch
+ * 2. recall@1
+ * 3. recall@5
+ * 4. recall@10
+ * 5. mean ap
  */
 template <typename Dtype>
 class RetrievalRankStatsLayer : public Layer<Dtype> {
@@ -35,7 +124,7 @@ class RetrievalRankStatsLayer : public Layer<Dtype> {
       vector<Blob<Dtype>*>* top);
 
   virtual inline LayerParameter_LayerType type() const {
-    return LayerParameter_LayerType_RETRIEVAL_STATS;
+    return LayerParameter_LayerType_RETRIEVAL_RANK_STATS;
   }
 
   virtual inline int ExactNumBottomBlobs() const { return 2; }

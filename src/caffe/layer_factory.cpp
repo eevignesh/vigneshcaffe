@@ -205,6 +205,8 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return new EuclideanLossLayer<Dtype>(param);
   case LayerParameter_LayerType_ELTWISE:
     return new EltwiseLayer<Dtype>(param);
+  case LayerParameter_LayerType_FIXED_VIDEO_SHOT_TEST_DATA:
+    return new FixedVideoShotTestDataLayer<Dtype>(param);
   case LayerParameter_LayerType_FLATTEN:
     return new FlattenLayer<Dtype>(param);
   case LayerParameter_LayerType_FLEXIBLE_DATA:
@@ -243,6 +245,8 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return new PowerLayer<Dtype>(param);
   case LayerParameter_LayerType_RELU:
     return GetReLULayer<Dtype>(name, param);
+  case LayerParameter_LayerType_RETRIEVAL_RANK_STATS_FIXED_REF:
+    return new RetrievalRankStatsFixedRefLayer<Dtype>(param);
   case LayerParameter_LayerType_RETRIEVAL_RANK_STATS:
     return new RetrievalRankStatsLayer<Dtype>(param);
   case LayerParameter_LayerType_RETRIEVAL_STATS:

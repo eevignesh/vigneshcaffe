@@ -232,7 +232,7 @@ message LayerParameter {
   // line above the enum. Update the next available ID when you add a new
   // LayerType.
   //
-  // LayerType next available ID: 50 (last added: VIDEO_SAMPLED_SHOTS__DATA)
+  // LayerType next available ID: 52 (last added: FIXED_VIDEO_SHOT_TEST_DATA)
   enum LayerType {
     // "NONE" layer type is 0th enum element so that we don't cause confusion
     // by defaulting to an existent LayerType (instead, should usually error if
@@ -252,6 +252,7 @@ message LayerParameter {
     EUCLIDEAN_LOSS = 7;
     ELTWISE = 25;
     FLATTEN = 8;
+    FIXED_VIDEO_SHOT_TEST_DATA = 51;
     FLEXIBLE_DATA = 38;
     HDF5_DATA = 9;
     HDF5_OUTPUT = 10;
@@ -271,6 +272,7 @@ message LayerParameter {
     POWER = 26;
     RELU = 18;
     RETRIEVAL_RANK_STATS = 47;
+    RETRIEVAL_RANK_STATS_FIXED_REF = 50;
     RETRIEVAL_STATS = 45;
     SIGMOID = 19;
     SIGMOID_CROSS_ENTROPY_LOSS = 27;
@@ -315,7 +317,7 @@ message LayerParameter {
   // to each top blob.
   repeated float loss_weight = 35;
 
-  // next available id = 52
+  // next available id = 54
   optional AccuracyParameter accuracy_param = 27;
   optional ArgMaxParameter argmax_param = 23;
   optional ClassificationStatsParameter classification_stats_param = 42;
@@ -326,6 +328,7 @@ message LayerParameter {
   optional DropoutParameter dropout_param = 12;
   optional DummyDataParameter dummy_data_param = 26;
   optional EltwiseParameter eltwise_param = 24;
+  optional FixedVideoShotTestDataParameter fixed_video_shot_test_data_param = 53;
   optional FlexibleDataParameter flexible_data_param = 41;
   optional HDF5DataParameter hdf5_data_param = 13;
   optional HDF5OutputParameter hdf5_output_param = 14;
@@ -342,6 +345,7 @@ message LayerParameter {
   optional PowerParameter power_param = 21;
   optional ReLUParameter relu_param = 30;
   optional RetrievalRankStatsParameter retrieval_rank_stats_param = 49;
+  optional RetrievalRankStatsFixedRefParameter retrieval_rank_stats_fixed_ref_param = 52;
   optional RetrievalStatsParameter retrieval_stats_param = 47;
   optional SigmoidParameter sigmoid_param = 38;
   optional SoftmaxParameter softmax_param = 39;
@@ -532,6 +536,10 @@ message VideoShotWindowTestDataParameter {
   // Do we display all ids
   optional bool display_all_ids = 13 [default = false];
 
+  optional bool include_positives = 14 [default = true];
+
+  optional bool include_negatives = 15 [default = true];
+
 }
 
 // Message that stores parameters used by VideoSampledShotWindowDataLayer
@@ -706,6 +714,15 @@ message SumParameter {
 // Message that stores parameters used by ThresholdLayer
 message ThresholdParameter {
   optional float threshold = 1 [default = 0]; // Strictly Positive values
+}
+
+// Message that stores parameters used by FixedVideoShotTestDataLayer
+message FixedVideoShotTestDataParameter {
+  optional uint32 batch_size = 1;
+  optional uint32 channels = 2;
+  optional uint32 height = 3;
+  optional uint32 width = 4;
+  optional string source = 5;
 }
 
 // Message that stores parameters used by HDF5DataLayer
@@ -884,6 +901,12 @@ message RetrievalRankStatsParameter {
 
   optional int32 positive_size = 4 [default = 0];
   optional int32 negative_size = 5 [default = 0];
+}
+
+message RetrievalRankStatsFixedRefParameter {
+  optional string stats_output_file = 1 [default = ""];
+  optional int32 num_reference_points = 2 [default = 0];
+  optional string source = 3 [default = ""];
 }
 
 message RetrievalStatsParameter {
